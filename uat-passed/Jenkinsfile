@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+
+    environment {
+        SOURCE_IMAGE_TAG = 'uat'
+        TARGET_IMAGE_TAG = 'rc'
+    }
+    
+    stages {
+        stage('Prepare Release Candidate') {
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$TARGET_IMAGE_TAG"
+
+                    sh "docker push jvandusen/sbms-discovery:$TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$TARGET_IMAGE_TAG"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,111 @@
+pipeline {
+    agent any
+
+    triggers {
+        pollSCM('H/5 8-16 * * 1-5')
+        upstream(upstreamProjects: 'sbms-discovery,sbms-admin,sbms-web,sbms-greeting', threshold: hudson.model.Result.SUCCESS)
+    }
+
+    environment {
+        DEV_SWARM_MANAGER = '172.24.140.94:2375'
+        DEV_STACK_NAME = 'sbms-dev'
+        DEV_SOURCE_IMAGE_TAG = 'latest'
+        DEV_TARGET_IMAGE_TAG = 'dev'
+
+        TEST_SWARM_MANAGER = '172.24.140.92:2375'
+        TEST_STACK_NAME = 'sbms-test'
+        TEST_SOURCE_IMAGE_TAG = 'dev'
+        TEST_TARGET_IMAGE_TAG = 'test'
+        TEST_PASSED_IMAGE_TAG = 'test-passed'
+
+        UAT_SWARM_MANAGER = '172.24.140.89:2375'
+        UAT_STACK_NAME = 'sbms-uat'
+        UAT_SOURCE_IMAGE_TAG = 'test-passed'
+        UAT_TARGET_IMAGE_TAG = 'uat'
+    }
+    
+    stages {
+        stage('Deploy to Dev') {
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker tag jvandusen/sbms-discovery:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
+                    
+                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always -e IMAGE_TAG='$DEV_TARGET_IMAGE_TAG' $DEV_STACK_NAME"
+                    
+                    sh "docker push jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
+                }
+            }
+        }
+        stage('Prepare Images for Test') {
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker tag jvandusen/sbms-discovery:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-admin:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-web:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$TEST_TARGET_IMAGE_TAG"
+
+                    sh "docker push jvandusen/sbms-discovery:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$TEST_TARGET_IMAGE_TAG"
+                }
+            }
+        }
+        stage('Deploy to Test') {
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always -e IMAGE_TAG='$TEST_TARGET_IMAGE_TAG' $TEST_STACK_NAME"
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                // TODO: execute tests
+                echo "insert tests here"
+            }
+            post {
+                always {
+                    sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_STACK_NAME"
+                }
+            }
+        }
+        stage ('Tag Tested Images') {
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker tag jvandusen/sbms-discovery:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-discovery:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-admin:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-web:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-greeting:$TEST_PASSED_IMAGE_TAG"
+
+                    sh "docker push jvandusen/sbms-discovery:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$TEST_PASSED_IMAGE_TAG"
+                }
+            }
+        }
+        stage('Deploy to UAT') {
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker tag jvandusen/sbms-discovery:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
+
+                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always -e IMAGE_TAG='$UAT_TARGET_IMAGE_TAG' $UAT_STACK_NAME"
+
+                    sh "docker push jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+
+    environment {
+        SWARM_MANAGER = '172.24.140.92:2375'
+        STACK_NAME = 'sbms-test'
+    }
+    
+    stages {
+        stage('Tear Down Test') {
+            steps {
+                sh "docker -H $SWARM_MANAGER stack rm $STACK_NAME"
+            }
+        }
+    }
+}

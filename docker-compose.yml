@@ -1,0 +1,93 @@
+version: "3.6"
+
+services:
+  sbms-discovery-1:
+    environment:
+    - EUREKA_INSTANCE_LIST=http://sbms-discovery-1:8761/eureka/,http://sbms-discovery-2:8762/eureka/
+    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    ports:
+    - "8761:8761"
+
+  sbms-discovery-2:
+    environment:
+    - EUREKA_INSTANCE_LIST=http://sbms-discovery-1:8761/eureka/,http://sbms-discovery-2:8762/eureka/
+    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    ports:
+    - "8762:8761"
+
+  sbms-admin:
+    environment:
+    - EUREKA_INSTANCE_LIST=http://sbms-discovery-1:8761/eureka/,http://sbms-discovery-2:8762/eureka/
+    image: jvandusen/sbms-admin:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    ports:
+    - "9999:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: continue
+        monitor: 60s
+        max_failure_ratio: 0.3
+
+  sbms-web:
+    environment:
+    - EUREKA_INSTANCE_LIST=http://sbms-discovery-1:8761/eureka/,http://sbms-discovery-2:8762/eureka/
+    image: jvandusen/sbms-web:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    ports:
+    - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: continue
+        monitor: 60s
+        max_failure_ratio: 0.3
+
+  sbms-greeting:
+    environment:
+    - EUREKA_INSTANCE_LIST=http://sbms-discovery-1:8761/eureka/,http://sbms-discovery-2:8762/eureka/
+    - SPRING_DATA_MONGODB_HOST=sbms-mongo
+    image: jvandusen/sbms-greeting:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: continue
+        monitor: 60s
+        max_failure_ratio: 0.3
+
+  sbms-mongo:
+    image: mongo
+    networks:
+    - sbms-net
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: continue
+        monitor: 60s
+        max_failure_ratio: 0.3
+    
+networks:
+  sbms-net:
+    driver: overlay
+    driver_opts:
+      encrypted: "true"
