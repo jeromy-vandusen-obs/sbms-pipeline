@@ -27,7 +27,7 @@ pipeline {
     stages {
         stage('Deploy to Dev') {
             environment {
-                IMAGE_TAG = $DEV_TARGET_IMAGE_TAG
+                IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -62,7 +62,7 @@ pipeline {
         }
         stage('Deploy to Test') {
             environment {
-                IMAGE_TAG = $TEST_TARGET_IMAGE_TAG
+                IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -98,7 +98,7 @@ pipeline {
         }
         stage('Deploy to UAT') {
             environment {
-                IMAGE_TAG = $UAT_TARGET_IMAGE_TAG
+                IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {

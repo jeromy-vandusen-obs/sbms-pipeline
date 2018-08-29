@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Deploy') {
             environment {
-                IMAGE_TAG = $TARGET_IMAGE_TAG
+                IMAGE_TAG = "$TARGET_IMAGE_TAG"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
