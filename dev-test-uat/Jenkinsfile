@@ -26,6 +26,9 @@ pipeline {
     
     stages {
         stage('Deploy to Dev') {
+            environment {
+                IMAGE_TAG = $DEV_TARGET_IMAGE_TAG
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     sh "docker tag jvandusen/sbms-discovery:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
@@ -33,7 +36,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
                     
-                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always -e IMAGE_TAG='$DEV_TARGET_IMAGE_TAG' $DEV_STACK_NAME"
+                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always $DEV_STACK_NAME"
                     
                     sh "docker push jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
@@ -58,9 +61,12 @@ pipeline {
             }
         }
         stage('Deploy to Test') {
+            environment {
+                IMAGE_TAG = $TEST_TARGET_IMAGE_TAG
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always -e IMAGE_TAG='$TEST_TARGET_IMAGE_TAG' $TEST_STACK_NAME"
+                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always $TEST_STACK_NAME"
                 }
             }
         }
@@ -91,6 +97,9 @@ pipeline {
             }
         }
         stage('Deploy to UAT') {
+            environment {
+                IMAGE_TAG = $UAT_TARGET_IMAGE_TAG
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     sh "docker tag jvandusen/sbms-discovery:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
@@ -98,7 +107,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
 
-                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always -e IMAGE_TAG='$UAT_TARGET_IMAGE_TAG' $UAT_STACK_NAME"
+                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always $UAT_STACK_NAME"
 
                     sh "docker push jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"

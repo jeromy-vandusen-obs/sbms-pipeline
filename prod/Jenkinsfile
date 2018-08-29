@@ -10,6 +10,9 @@ pipeline {
     
     stages {
         stage('Deploy') {
+            environment {
+                IMAGE_TAG = $TARGET_IMAGE_TAG
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$TARGET_IMAGE_TAG"
