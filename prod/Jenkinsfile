@@ -11,6 +11,7 @@ pipeline {
     stages {
         stage('Prepare Infrastructure') {
             environment {
+                IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 MONGO_DATA_PATH = "/opt/sbms/mongo"
                 MONGO_PORT = "27017"
                 DISCOVERY_PRIMARY_PORT = "8761"
