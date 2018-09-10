@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SWARM_MANAGER = '172.24.140.94:2375'
+        SWARM_MANAGER = '172.24.140.88:2375'
         STACK_NAME = 'sbms-dev'
     }
     
