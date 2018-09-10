@@ -7,18 +7,18 @@ pipeline {
     }
 
     environment {
-        DEV_SWARM_MANAGER = '172.24.140.94:2375'
+        DEV_SWARM_MANAGER = '172.24.140.88:2375'
         DEV_STACK_NAME = 'sbms-dev'
         DEV_SOURCE_IMAGE_TAG = 'latest'
         DEV_TARGET_IMAGE_TAG = 'dev'
 
-        TEST_SWARM_MANAGER = '172.24.140.92:2375'
+        TEST_SWARM_MANAGER = '172.24.140.88:2375'
         TEST_STACK_NAME = 'sbms-test'
         TEST_SOURCE_IMAGE_TAG = 'dev'
         TEST_TARGET_IMAGE_TAG = 'test'
         TEST_PASSED_IMAGE_TAG = 'test-passed'
 
-        UAT_SWARM_MANAGER = '172.24.140.89:2375'
+        UAT_SWARM_MANAGER = '172.24.140.88:2375'
         UAT_STACK_NAME = 'sbms-uat'
         UAT_SOURCE_IMAGE_TAG = 'test-passed'
         UAT_TARGET_IMAGE_TAG = 'uat'

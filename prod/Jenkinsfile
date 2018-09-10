@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SWARM_MANAGER = '172.24.140.86:2375'
+        SWARM_MANAGER = '172.24.140.83:2375'
         STACK_NAME = 'sbms-prod'
         SOURCE_IMAGE_TAG = 'rc'
         TARGET_IMAGE_TAG = 'prod'
