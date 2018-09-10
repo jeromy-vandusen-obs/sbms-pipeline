@@ -6,6 +6,11 @@ pipeline {
         STACK_NAME = 'sbms-prod'
         SOURCE_IMAGE_TAG = 'rc'
         TARGET_IMAGE_TAG = 'prod'
+        DISCOVERY_PRIMARY_PORT = "8761"
+        DISCOVERY_SECONDARY_PORT = "8762"
+        ADMIN_PORT = "9999"
+        WEB_PORT = "8080"
+        EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-2:8762/eureka/"
     }
     
     stages {
