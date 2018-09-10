@@ -3,13 +3,15 @@ pipeline {
 
     environment {
         SWARM_MANAGER = '172.24.140.88:2375'
-        STACK_NAME = 'sbms-dev'
+        APP_STACK_NAME = 'sbms-dev-app'
+        INFRA_STACK_NAME = 'sbms-dev-infra'
     }
     
     stages {
         stage('Tear Down Dev') {
             steps {
-                sh "docker -H $SWARM_MANAGER stack rm $STACK_NAME"
+                sh "docker -H $SWARM_MANAGER stack rm $APP_STACK_NAME"
+                sh "docker -H $SWARM_MANAGER stack rm $INFRA_STACK_NAME"
             }
         }
     }
