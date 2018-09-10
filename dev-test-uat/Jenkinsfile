@@ -8,18 +8,21 @@ pipeline {
 
     environment {
         DEV_SWARM_MANAGER = '172.24.140.88:2375'
-        DEV_STACK_NAME = 'sbms-dev'
+        DEV_APP_STACK_NAME = 'sbms-dev-app'
+        DEV_INFRA_STACK_NAME = 'sbms-dev-infra'
         DEV_SOURCE_IMAGE_TAG = 'latest'
         DEV_TARGET_IMAGE_TAG = 'dev'
 
         TEST_SWARM_MANAGER = '172.24.140.88:2375'
-        TEST_STACK_NAME = 'sbms-test'
+        TEST_APP_STACK_NAME = 'sbms-test-app'
+        TEST_INFRA_STACK_NAME = 'sbms-test-infra'
         TEST_SOURCE_IMAGE_TAG = 'dev'
         TEST_TARGET_IMAGE_TAG = 'test'
         TEST_PASSED_IMAGE_TAG = 'test-passed'
 
         UAT_SWARM_MANAGER = '172.24.140.88:2375'
-        UAT_STACK_NAME = 'sbms-uat'
+        UAT_APP_STACK_NAME = 'sbms-uat-app'
+        UAT_INFRA_STACK_NAME = 'sbms-uat-infra'
         UAT_SOURCE_IMAGE_TAG = 'test-passed'
         UAT_TARGET_IMAGE_TAG = 'uat'
     }
@@ -35,7 +38,7 @@ pipeline {
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
             }
             steps {
-                sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+                sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_INFRA_STACK_NAME"
             }
         }
         stage('Deploy to Dev') {
@@ -54,7 +57,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
                     
-                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $DEV_STACK_NAME"
+                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $DEV_APP_STACK_NAME"
                     
                     sh "docker push jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
@@ -88,8 +91,7 @@ pipeline {
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
             }
             steps {
-                sh "rm -rf $MONGO_DATA_PATH/*"
-                sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $TEST_STACK_NAME"
+                sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $TEST_INFRA_STACK_NAME"
             }
         }
         stage('Deploy to Test') {
@@ -103,7 +105,7 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_STACK_NAME"
+                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_APP_STACK_NAME"
                 }
             }
         }
@@ -114,7 +116,9 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_STACK_NAME"
+                    sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_APP_STACK_NAME"
+                    sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_INFRA_STACK_NAME"
+                    sh "rm -rf $MONGO_DATA_PATH/*"
                 }
             }
         }
@@ -143,7 +147,7 @@ pipeline {
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"
             }
             steps {
-                sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $UAT_STACK_NAME"
+                sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $UAT_INFRA_STACK_NAME"
             }
         }
         stage('Deploy to UAT') {
@@ -162,7 +166,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
 
-                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $UAT_STACK_NAME"
+                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $UAT_APP_STACK_NAME"
 
                     sh "docker push jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"

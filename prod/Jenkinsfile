@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         SWARM_MANAGER = '172.24.140.83:2375'
-        STACK_NAME = 'sbms-prod'
+        APP_STACK_NAME = 'sbms-prod-app'
+        INFRA_STACK_NAME = 'sbms-prod-infra'
         SOURCE_IMAGE_TAG = 'rc'
         TARGET_IMAGE_TAG = 'prod'
     }
@@ -19,7 +20,7 @@ pipeline {
                 EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
             }
             steps {
-                sh "docker -H $SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $STACK_NAME"
+                sh "docker -H $SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $INFRA_STACK_NAME"
             }
         }
         stage('Deploy Application') {
@@ -38,7 +39,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$TARGET_IMAGE_TAG"
 
-                    sh "docker -H $SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $STACK_NAME"
+                    sh "docker -H $SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $APP_STACK_NAME"
 
                     sh "docker push jvandusen/sbms-discovery:$TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$TARGET_IMAGE_TAG"
