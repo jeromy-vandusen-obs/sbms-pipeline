@@ -13,7 +13,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-      start_period: 10m
+      start_period: 5m
 
   sbms-discovery-2:
     environment:
@@ -27,7 +27,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-      start_period: 10m
+      start_period: 5m
 
   sbms-admin:
     environment:
@@ -39,18 +39,18 @@ services:
     - "${ADMIN_PORT}:8080"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
-        delay: 10s
+        delay: 5m
         failure_action: continue
-        monitor: 60s
+        monitor: 5m
         max_failure_ratio: 0.3
     healthcheck:
       interval: 30s
       timeout: 30s
       retries: 3
-      start_period: 10m
+      start_period: 5m
 
   sbms-web:
     environment:
@@ -62,18 +62,18 @@ services:
     - "${WEB_PORT}:8080"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
-        delay: 10s
+        delay: 5m
         failure_action: continue
-        monitor: 60s
+        monitor: 5m
         max_failure_ratio: 0.3
     healthcheck:
       interval: 30s
       timeout: 30s
       retries: 3
-      start_period: 10m
+      start_period: 5m
 
   sbms-greeting:
     environment:
@@ -84,18 +84,18 @@ services:
     - sbms-net
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
-        delay: 10s
+        delay: 5m
         failure_action: continue
-        monitor: 60s
+        monitor: 5m
         max_failure_ratio: 0.3
     healthcheck:
       interval: 30s
       timeout: 30s
       retries: 3
-      start_period: 10m
+      start_period: 5m
 
   sbms-mongo:
     image: mongo
@@ -108,11 +108,11 @@ services:
       replicas: 1
       update_config:
         parallelism: 1
-        delay: 10s
+        delay: 5m
         failure_action: continue
-        monitor: 60s
+        monitor: 5m
         max_failure_ratio: 0.3
-    
+
 networks:
   sbms-net:
     driver: overlay
