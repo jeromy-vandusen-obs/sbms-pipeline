@@ -6,18 +6,27 @@ pipeline {
         STACK_NAME = 'sbms-prod'
         SOURCE_IMAGE_TAG = 'rc'
         TARGET_IMAGE_TAG = 'prod'
-        DISCOVERY_PRIMARY_PORT = "8761"
-        DISCOVERY_SECONDARY_PORT = "8762"
-        ADMIN_PORT = "9999"
-        WEB_PORT = "8080"
-        EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
-        MONGO_DATA_PATH = "/opt/sbms/mongo"
     }
     
     stages {
-        stage('Deploy') {
+        stage('Prepare Infrastructure') {
+            environment {
+                MONGO_DATA_PATH = "/opt/sbms/mongo"
+                MONGO_PORT = "27017"
+                DISCOVERY_PRIMARY_PORT = "8761"
+                DISCOVERY_SECONDARY_PORT = "8762"
+                EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
+            }
+            sh "docker -H $SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $STACK_NAME"
+        }
+        stage('Deploy Application') {
             environment {
                 IMAGE_TAG = "$TARGET_IMAGE_TAG"
+                ADMIN_PORT = "9999"
+                WEB_PORT = "8080"
+                EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
+                MONGODB_HOST = "prod-master-1"
+                MONGODB_PORT = "27017"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {

@@ -25,15 +25,24 @@ pipeline {
     }
     
     stages {
+        stage('Prepare Dev Infrastructure') {
+            environment {
+                MONGO_DATA_PATH = "/opt/sbms/dev/mongo"
+                MONGO_PORT = "27000"
+                DISCOVERY_PRIMARY_PORT = "18761"
+                DISCOVERY_SECONDARY_PORT = "18762"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
+            }
+            sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+        }
         stage('Deploy to Dev') {
             environment {
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
-                DISCOVERY_PRIMARY_PORT = "18761"
-                DISCOVERY_SECONDARY_PORT = "18762"
                 ADMIN_PORT = "19999"
                 WEB_PORT = "18080"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
-                MONGO_DATA_PATH = "/opt/sbms/dev/mongo"
+                MONGODB_HOST = "dev-master-1"
+                MONGODB_PORT = "27000"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -42,7 +51,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
                     
-                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $DEV_STACK_NAME"
+                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $DEV_STACK_NAME"
                     
                     sh "docker push jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
@@ -66,20 +75,29 @@ pipeline {
                 }
             }
         }
+        stage('Prepare Test Infrastructure') {
+            environment {
+                MONGO_DATA_PATH = "/opt/sbms/test/mongo"
+                MONGO_PORT = "27001"
+                DISCOVERY_PRIMARY_PORT = "28761"
+                DISCOVERY_SECONDARY_PORT = "28762"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
+            }
+            sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+        }
         stage('Deploy to Test') {
             environment {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
-                DISCOVERY_PRIMARY_PORT = "28761"
-                DISCOVERY_SECONDARY_PORT = "28762"
                 ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
-                MONGO_DATA_PATH = "/opt/sbms/test/mongo"
+                MONGODB_HOST = "dev-master-1"
+                MONGODB_PORT = "27001"
             }
             steps {
                 sh "rm -rf $MONGO_DATA_PATH/*"
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $TEST_STACK_NAME"
+                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_STACK_NAME"
                 }
             }
         }
@@ -109,15 +127,24 @@ pipeline {
                 }
             }
         }
+        stage('Prepare UAT Infrastructure') {
+            environment {
+                MONGO_DATA_PATH = "/opt/sbms/uat/mongo"
+                MONGO_PORT = "27017"
+                DISCOVERY_PRIMARY_PORT = "8761"
+                DISCOVERY_SECONDARY_PORT = "8762"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"
+            }
+            sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+        }
         stage('Deploy to UAT') {
             environment {
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
-                DISCOVERY_PRIMARY_PORT = "8761"
-                DISCOVERY_SECONDARY_PORT = "8762"
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"
-                MONGO_DATA_PATH = "/opt/sbms/uat/mongo"
+                MONGODB_HOST = "dev-master-1"
+                MONGODB_PORT = "27017"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -126,7 +153,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
 
-                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $UAT_STACK_NAME"
+                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $UAT_STACK_NAME"
 
                     sh "docker push jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"
