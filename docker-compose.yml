@@ -8,7 +8,7 @@ services:
     networks:
     - sbms-net
     ports:
-    - "8761:8761"
+    - "${DISCOVERY_PRIMARY_PORT}:8761"
 
   sbms-discovery-2:
     environment:
@@ -17,7 +17,7 @@ services:
     networks:
     - sbms-net
     ports:
-    - "8762:8761"
+    - "${DISCOVERY_SECONDARY_PORT}:8761"
 
   sbms-admin:
     environment:
@@ -26,7 +26,7 @@ services:
     networks:
     - sbms-net
     ports:
-    - "9999:8080"
+    - "${ADMIN_PORT}:8080"
     deploy:
       mode: replicated
       replicas: 1
@@ -44,7 +44,7 @@ services:
     networks:
     - sbms-net
     ports:
-    - "8080:8080"
+    - "${WEB_PORT}:8080"
     deploy:
       mode: replicated
       replicas: 1
