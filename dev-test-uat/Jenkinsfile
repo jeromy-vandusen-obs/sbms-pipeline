@@ -110,6 +110,9 @@ pipeline {
             }
         }
         stage('Run Tests') {
+            environment {
+                MONGO_DATA_PATH = "/opt/sbms/test/mongo"
+            }
             steps {
                 // TODO: execute tests
                 echo "insert tests here"
