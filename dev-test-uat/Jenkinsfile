@@ -33,7 +33,9 @@ pipeline {
                 DISCOVERY_SECONDARY_PORT = "18762"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
             }
-            sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+            steps {
+                sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+            }
         }
         stage('Deploy to Dev') {
             environment {
@@ -83,7 +85,9 @@ pipeline {
                 DISCOVERY_SECONDARY_PORT = "28762"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
             }
-            sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+            steps {
+                sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+            }
         }
         stage('Deploy to Test') {
             environment {
@@ -135,7 +139,9 @@ pipeline {
                 DISCOVERY_SECONDARY_PORT = "8762"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"
             }
-            sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+            steps {
+                sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_STACK_NAME"
+            }
         }
         stage('Deploy to UAT') {
             environment {

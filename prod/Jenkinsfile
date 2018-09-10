@@ -17,7 +17,9 @@ pipeline {
                 DISCOVERY_SECONDARY_PORT = "8762"
                 EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
             }
-            sh "docker -H $SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $STACK_NAME"
+            steps {
+                sh "docker -H $SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $STACK_NAME"
+            }
         }
         stage('Deploy Application') {
             environment {
