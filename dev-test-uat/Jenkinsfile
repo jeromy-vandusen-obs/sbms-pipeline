@@ -88,6 +88,7 @@ pipeline {
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
             }
             steps {
+                sh "rm -rf $MONGO_DATA_PATH/*"
                 sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $TEST_STACK_NAME"
             }
         }
@@ -101,7 +102,6 @@ pipeline {
                 MONGODB_PORT = "27001"
             }
             steps {
-                sh "rm -rf $MONGO_DATA_PATH/*"
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_STACK_NAME"
                 }
