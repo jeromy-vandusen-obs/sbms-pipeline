@@ -31,8 +31,8 @@ pipeline {
         stage('Prepare Dev Infrastructure') {
             environment {
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
-                MONGO_DATA_PATH = "/opt/sbms/dev/mongo"
-                MONGO_PORT = "27000"
+                MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
+                MONGODB_PORT = "27000"
                 DISCOVERY_PRIMARY_PORT = "18761"
                 DISCOVERY_SECONDARY_PORT = "18762"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
@@ -84,8 +84,8 @@ pipeline {
         stage('Prepare Test Infrastructure') {
             environment {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
-                MONGO_DATA_PATH = "/opt/sbms/test/mongo"
-                MONGO_PORT = "27001"
+                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
+                MONGODB_PORT = "27001"
                 DISCOVERY_PRIMARY_PORT = "28761"
                 DISCOVERY_SECONDARY_PORT = "28762"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
@@ -111,7 +111,7 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
-                MONGO_DATA_PATH = "/opt/sbms/test/mongo"
+                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
             }
             steps {
                 // TODO: execute tests
@@ -121,7 +121,7 @@ pipeline {
                 always {
                     sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_APP_STACK_NAME"
                     sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_INFRA_STACK_NAME"
-                    sh "rm -rf $MONGO_DATA_PATH/*"
+                    sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
             }
         }
@@ -143,8 +143,8 @@ pipeline {
         stage('Prepare UAT Infrastructure') {
             environment {
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
-                MONGO_DATA_PATH = "/opt/sbms/uat/mongo"
-                MONGO_PORT = "27017"
+                MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
+                MONGODB_PORT = "27017"
                 DISCOVERY_PRIMARY_PORT = "8761"
                 DISCOVERY_SECONDARY_PORT = "8762"
                 EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"

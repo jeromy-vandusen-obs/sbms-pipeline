@@ -13,8 +13,8 @@ pipeline {
         stage('Prepare Infrastructure') {
             environment {
                 IMAGE_TAG = "$TARGET_IMAGE_TAG"
-                MONGO_DATA_PATH = "/opt/sbms/mongo"
-                MONGO_PORT = "27017"
+                MONGODB_DATA_PATH = "/opt/sbms/mongodb"
+                MONGODB_PORT = "27017"
                 DISCOVERY_PRIMARY_PORT = "8761"
                 DISCOVERY_SECONDARY_PORT = "8762"
                 EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
