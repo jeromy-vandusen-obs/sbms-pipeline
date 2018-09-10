@@ -11,6 +11,7 @@ pipeline {
         ADMIN_PORT = "9999"
         WEB_PORT = "8080"
         EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
+        MONGO_DATA_PATH = "/opt/sbms/mongo"
     }
     
     stages {

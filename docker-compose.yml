@@ -3,7 +3,7 @@ version: "3.6"
 services:
   sbms-discovery-1:
     environment:
-    - EUREKA_INSTANCE_LIST=${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -17,7 +17,7 @@ services:
 
   sbms-discovery-2:
     environment:
-    - EUREKA_INSTANCE_LIST=${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -31,7 +31,7 @@ services:
 
   sbms-admin:
     environment:
-    - EUREKA_INSTANCE_LIST=${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-admin:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -54,7 +54,7 @@ services:
 
   sbms-web:
     environment:
-    - EUREKA_INSTANCE_LIST=${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -77,8 +77,8 @@ services:
 
   sbms-greeting:
     environment:
-    - EUREKA_INSTANCE_LIST=${EUREKA_INSTANCE_LIST}
-    - SPRING_DATA_MONGODB_HOST=sbms-mongo
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      SPRING_DATA_MONGODB_HOST: sbms-mongo
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -101,6 +101,8 @@ services:
     image: mongo
     networks:
     - sbms-net
+    volumes:
+    - "${MONGO_DATA_PATH}:/data/db"
     deploy:
       mode: replicated
       replicas: 1
