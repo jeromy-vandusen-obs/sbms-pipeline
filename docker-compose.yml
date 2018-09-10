@@ -103,15 +103,6 @@ services:
     - sbms-net
     volumes:
     - "${MONGO_DATA_PATH}:/data/db"
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
 
 networks:
   sbms-net:
