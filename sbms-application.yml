@@ -13,6 +13,12 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 5m
+        failure_action: continue
+        monitor: 5m
+        max_failure_ratio: 0.3
     healthcheck:
       interval: 30s
       timeout: 30s
@@ -31,6 +37,12 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 5m
+        failure_action: continue
+        monitor: 5m
+        max_failure_ratio: 0.3
     healthcheck:
       interval: 30s
       timeout: 30s
@@ -48,7 +60,7 @@ services:
     - "${ADMIN_PORT}:${ADMIN_PORT}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5m
@@ -72,7 +84,7 @@ services:
     - "${WEB_PORT}:${WEB_PORT}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5m
@@ -98,7 +110,7 @@ services:
     - "${GREETING_PORT}:${GREETING_PORT}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5m
