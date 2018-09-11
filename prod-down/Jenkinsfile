@@ -2,14 +2,18 @@ pipeline {
     agent any
 
     environment {
-        SWARM_MANAGER = '172.24.140.86:2375'
-        STACK_NAME = 'sbms-prod'
+        INFRA_PRIMARY_MANAGER = '172.24.140.83:2375'
+        INFRA_SECONDARY_MANAGER = '172.24.140.90:2375'
+        APP_SWARM_MANAGER = '172.24.140.83:2375'
+        APP_STACK_NAME = 'sbms-prod-app'
     }
-    
+
     stages {
-        stage('Tear Down Prod') {
+        stage('Tear Down Dev') {
             steps {
-                sh "docker -H $SWARM_MANAGER stack rm $STACK_NAME"
+                sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
+                sh "docker-compose -H $INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml down"
+                sh "docker-compose -H $INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml down"
             }
         }
     }
