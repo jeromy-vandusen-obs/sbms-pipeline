@@ -10,24 +10,24 @@ pipeline {
         DEV_MASTER_1 = "172.24.140.88"
         DEV_NODE_1 = "172.24.140.82"
 
-        DEV_INFRA_PRIMARY_MANAGER = "${DEV_MASTER_1}:2375"
-        DEV_INFRA_SECONDARY_MANAGER = "${DEV_NODE_1}:2375"
-        DEV_APP_SWARM_MANAGER = "${DEV_MASTER_1}:2375"
+        DEV_INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
+        DEV_INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        DEV_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         DEV_APP_STACK_NAME = "sbms-dev-app"
         DEV_SOURCE_IMAGE_TAG = "latest"
         DEV_TARGET_IMAGE_TAG = "dev"
 
-        TEST_INFRA_PRIMARY_MANAGER = "${DEV_MASTER_1}:2375"
-        TEST_INFRA_SECONDARY_MANAGER = "${DEV_NODE_1}:2375"
-        TEST_APP_SWARM_MANAGER = "${DEV_MASTER_1}:2375"
+        TEST_INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
+        TEST_INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        TEST_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         TEST_APP_STACK_NAME = "sbms-test-app"
         TEST_SOURCE_IMAGE_TAG = "dev"
         TEST_TARGET_IMAGE_TAG = "test"
         TEST_PASSED_IMAGE_TAG = "test-passed"
 
-        UAT_INFRA_PRIMARY_MANAGER = "${DEV_MASTER_1}:2375"
-        UAT_INFRA_SECONDARY_MANAGER = "${DEV_NODE_1}:2375"
-        UAT_APP_SWARM_MANAGER = "${DEV_MASTER_1}:2375"
+        UAT_INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
+        UAT_INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        UAT_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         UAT_APP_STACK_NAME = "sbms-uat-app"
         UAT_SOURCE_IMAGE_TAG = "test-passed"
         UAT_TARGET_IMAGE_TAG = "uat"
@@ -41,7 +41,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
                 DISCOVERY_PORT = "18761"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:18761/eureka/,http://${DEV_NODE_1}:18761/eureka/"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:18761/eureka/,http://$DEV_NODE_1:18761/eureka/"
             }
             steps {
                 sh "docker-compose -H $DEV_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -56,8 +56,8 @@ pipeline {
                 ADMIN_PORT = "19999"
                 WEB_PORT = "18080"
                 GREETING_PORT = "18100"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:18761/eureka/,http://${DEV_NODE_1}:18761/eureka/"
-                MONGODB_HOST = "${DEV_MASTER_1}"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:18761/eureka/,http://$DEV_NODE_1:18761/eureka/"
+                MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27000"
             }
             steps {
@@ -98,7 +98,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
                 DISCOVERY_PORT = "28761"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:28761/eureka/,http://${DEV_NODE_1}:28761/eureka/"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:28761/eureka/,http://$DEV_NODE_1:28761/eureka/"
             }
             steps {
                 sh "docker-compose -H $TEST_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -113,8 +113,8 @@ pipeline {
                 ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
                 GREETING_PORT = "28100"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:28761/eureka/,http://${DEV_NODE_1}:28761/eureka/"
-                MONGODB_HOST = "${DEV_MASTER_1}"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:28761/eureka/,http://$DEV_NODE_1:28761/eureka/"
+                MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27001"
             }
             steps {
@@ -130,7 +130,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
                 DISCOVERY_PORT = "28761"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:28761/eureka/,http://${DEV_NODE_1}:28761/eureka/"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:28761/eureka/,http://$DEV_NODE_1:28761/eureka/"
             }
             steps {
                 // TODO: execute tests
@@ -166,7 +166,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
                 DISCOVERY_PORT = "8761"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:8761/eureka/,http://${DEV_NODE_1}:8761/eureka/"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:8761/eureka/,http://$DEV_NODE_1:8761/eureka/"
             }
             steps {
                 sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -181,8 +181,8 @@ pipeline {
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
-                EUREKA_INSTANCE_LIST = "http://${DEV_MASTER_1}:8761/eureka/,http://${DEV_NODE_1}:8761/eureka/"
-                MONGODB_HOST = "${DEV_MASTER_1}"
+                EUREKA_INSTANCE_LIST = "http://$DEV_MASTER_1:8761/eureka/,http://$DEV_NODE_1:8761/eureka/"
+                MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27017"
             }
             steps {
