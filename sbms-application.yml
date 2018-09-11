@@ -5,6 +5,7 @@ services:
     environment:
       SERVER_PORT: ${DISCOVERY_PRIMARY_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      EUREKA_HOSTNAME: smbs-discovery-1
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
       sbms-net
@@ -20,6 +21,7 @@ services:
     environment:
       SERVER_PORT: ${DISCOVERY_SECONDARY_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      EUREKA_HOSTNAME: smbs-discovery-2
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
       sbms-net
