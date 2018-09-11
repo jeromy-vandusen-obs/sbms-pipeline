@@ -6,6 +6,7 @@ pipeline {
         INFRA_SECONDARY_MANAGER = '172.24.140.90:2375'
         APP_SWARM_MANAGER = '172.24.140.83:2375'
         APP_STACK_NAME = 'sbms-prod-app'
+        COMPOSE_PROJECT_NAME = "sbms-prod-infra"
     }
 
     stages {

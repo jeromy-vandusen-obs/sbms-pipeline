@@ -3,7 +3,6 @@ version: "3.6"
 services:
   sbms-mongo:
     image: mongo
-    container_name: ${ENV_PREFIX}-infra-mongo
     ports:
     - "${MONGODB_PORT}:27017"
     volumes:
@@ -13,6 +12,5 @@ services:
     environment:
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
-    container_name: ${ENV_PREFIX}-infra-discovery
     ports:
     - "${DISCOVERY_PORT}:8761"

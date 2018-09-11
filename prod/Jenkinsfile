@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Prepare Infrastructure') {
             environment {
-                ENV_PREFIX = "prod"
+                COMPOSE_PROJECT_NAME = "sbms-prod-infra"
                 IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/mongodb"
                 MONGODB_PORT = "27017"
