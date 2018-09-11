@@ -7,22 +7,25 @@ pipeline {
     }
 
     environment {
-        DEV_SWARM_MANAGER = '172.24.140.88:2375'
+        DEV_INFRA_PRIMARY_MANAGER = '172.24.140.88:2375'
+        DEV_INFRA_SECONDARY_MANAGER = '172.24.140.82:2375'
+        DEV_APP_SWARM_MANAGER = '172.24.140.88:2375'
         DEV_APP_STACK_NAME = 'sbms-dev-app'
-        DEV_INFRA_STACK_NAME = 'sbms-dev-infra'
         DEV_SOURCE_IMAGE_TAG = 'latest'
         DEV_TARGET_IMAGE_TAG = 'dev'
 
-        TEST_SWARM_MANAGER = '172.24.140.88:2375'
+        TEST_INFRA_PRIMARY_MANAGER = '172.24.140.88:2375'
+        TEST_INFRA_SECONDARY_MANAGER = '172.24.140.82:2375'
+        TEST_APP_SWARM_MANAGER = '172.24.140.88:2375'
         TEST_APP_STACK_NAME = 'sbms-test-app'
-        TEST_INFRA_STACK_NAME = 'sbms-test-infra'
         TEST_SOURCE_IMAGE_TAG = 'dev'
         TEST_TARGET_IMAGE_TAG = 'test'
         TEST_PASSED_IMAGE_TAG = 'test-passed'
 
-        UAT_SWARM_MANAGER = '172.24.140.88:2375'
+        UAT_INFRA_PRIMARY_MANAGER = '172.24.140.88:2375'
+        UAT_INFRA_SECONDARY_MANAGER = '172.24.140.82:2375'
+        UAT_APP_SWARM_MANAGER = '172.24.140.88:2375'
         UAT_APP_STACK_NAME = 'sbms-uat-app'
-        UAT_INFRA_STACK_NAME = 'sbms-uat-infra'
         UAT_SOURCE_IMAGE_TAG = 'test-passed'
         UAT_TARGET_IMAGE_TAG = 'uat'
     }
@@ -33,12 +36,14 @@ pipeline {
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
-                DISCOVERY_PRIMARY_PORT = "18761"
-                DISCOVERY_SECONDARY_PORT = "18762"
-                EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
+                DISCOVERY_PORT = "18761"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-node-1:18761/eureka/"
             }
             steps {
-                sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $DEV_INFRA_STACK_NAME"
+                sh "docker-compose -H $DEV_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $DEV_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "docker-compose -H $DEV_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $DEV_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to Dev') {
@@ -57,7 +62,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
                     
-                    sh "docker -H $DEV_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $DEV_APP_STACK_NAME"
+                    sh "docker -H $DEV_APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $DEV_APP_STACK_NAME"
                     
                     sh "docker push jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
@@ -86,12 +91,14 @@ pipeline {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
-                DISCOVERY_PRIMARY_PORT = "28761"
-                DISCOVERY_SECONDARY_PORT = "28762"
-                EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
+                DISCOVERY_PORT = "28761"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-node-1:28761/eureka/"
             }
             steps {
-                sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $TEST_INFRA_STACK_NAME"
+                sh "docker-compose -H $TEST_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $TEST_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "docker-compose -H $TEST_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $TEST_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to Test') {
@@ -105,7 +112,7 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker -H $TEST_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_APP_STACK_NAME"
+                    sh "docker -H $TEST_APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_APP_STACK_NAME"
                 }
             }
         }
@@ -119,8 +126,8 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_APP_STACK_NAME"
-                    sh "docker -H $TEST_SWARM_MANAGER stack rm $TEST_INFRA_STACK_NAME"
+                    sh "docker -H $TEST_APP_SWARM_MANAGER stack rm $TEST_APP_STACK_NAME"
+                    sh "docker -H $TEST_APP_SWARM_MANAGER stack rm $TEST_INFRA_STACK_NAME"
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
             }
@@ -145,12 +152,14 @@ pipeline {
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
-                DISCOVERY_PRIMARY_PORT = "8761"
-                DISCOVERY_SECONDARY_PORT = "8762"
-                EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"
+                DISCOVERY_PORT = "8761"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-node-1:8761/eureka/"
             }
             steps {
-                sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-infrastructure.yml --resolve-image always --prune $UAT_INFRA_STACK_NAME"
+                sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "docker-compose -H $UAT_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $UAT_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to UAT') {
@@ -169,7 +178,7 @@ pipeline {
                     sh "docker tag jvandusen/sbms-web:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
 
-                    sh "docker -H $UAT_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $UAT_APP_STACK_NAME"
+                    sh "docker -H $UAT_APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $UAT_APP_STACK_NAME"
 
                     sh "docker push jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
                     sh "docker push jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"

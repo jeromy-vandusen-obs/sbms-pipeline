@@ -7,32 +7,10 @@ services:
     - "${MONGODB_PORT}:27017"
     volumes:
     - "${MONGODB_DATA_PATH}:/data/db"
-    healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 5m
 
-  sbms-discovery-1:
+  sbms-discovery:
     environment:
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     ports:
-    - "${DISCOVERY_PRIMARY_PORT}:8761"
-    healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 5m
-
-  sbms-discovery-2:
-    environment:
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
-    image: jvandusen/sbms-discovery:${IMAGE_TAG}
-    ports:
-    - "${DISCOVERY_SECONDARY_PORT}:8761"
-    healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 5m
+    - "${DISCOVERY_PORT}:8761"
