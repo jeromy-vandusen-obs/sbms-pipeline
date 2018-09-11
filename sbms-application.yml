@@ -38,7 +38,7 @@ services:
   sbms-admin:
     environment:
       SERVER_PORT: ${ADMIN_PORT}
-      EUREKA_INSTANCE_LIST: http://eureka/eureka/
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-admin:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -62,7 +62,7 @@ services:
   sbms-web:
     environment:
       SERVER_PORT: ${WEB_PORT}
-      EUREKA_INSTANCE_LIST: http://eureka/eureka/
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -86,7 +86,7 @@ services:
   sbms-greeting:
     environment:
       SERVER_PORT: ${GREETING_PORT}
-      EUREKA_INSTANCE_LIST: http://eureka/eureka/
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
       SPRING_DATA_MONGODB_HOST: ${MONGODB_HOST}
       SPRING_DATA_MONGODB_PORT: ${MONGODB_PORT}
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
