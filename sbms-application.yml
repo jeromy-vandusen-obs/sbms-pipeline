@@ -7,7 +7,9 @@ services:
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
-    - sbms-net
+      sbms-net:
+        aliases:
+        - eureka
     ports:
     - "${DISCOVERY_PRIMARY_PORT}:${DISCOVERY_PRIMARY_PORT}"
     healthcheck:
@@ -22,7 +24,9 @@ services:
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
-    - sbms-net
+      sbms-net:
+        aliases:
+        - eureka
     ports:
     - "${DISCOVERY_SECONDARY_PORT}:${DISCOVERY_SECONDARY_PORT}"
     healthcheck:
@@ -34,7 +38,7 @@ services:
   sbms-admin:
     environment:
       SERVER_PORT: ${ADMIN_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: eureka
     image: jvandusen/sbms-admin:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -58,7 +62,7 @@ services:
   sbms-web:
     environment:
       SERVER_PORT: ${WEB_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: eureka
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -82,7 +86,7 @@ services:
   sbms-greeting:
     environment:
       SERVER_PORT: ${GREETING_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: eureka
       SPRING_DATA_MONGODB_HOST: ${MONGODB_HOST}
       SPRING_DATA_MONGODB_PORT: ${MONGODB_PORT}
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
