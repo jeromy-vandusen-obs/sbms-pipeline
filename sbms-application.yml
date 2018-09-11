@@ -1,6 +1,32 @@
 version: "3.6"
 
 services:
+  sbms-discovery-1:
+    environment:
+      SERVER_PORT: ${DISCOVERY_PRIMARY_PORT}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    ports:
+    - "${DISCOVERY_PRIMARY_PORT}:${DISCOVERY_PRIMARY_PORT}"
+    healthcheck:
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5m
+
+  sbms-discovery-2:
+    environment:
+      SERVER_PORT: ${DISCOVERY_SECONDARY_PORT}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    ports:
+    - "${DISCOVERY_SECONDARY_PORT}:${DISCOVERY_SECONDARY_PORT}"
+    healthcheck:
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5m
+
   sbms-admin:
     environment:
       SERVER_PORT: ${ADMIN_PORT}

@@ -20,8 +20,9 @@ pipeline {
                 IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/mongodb"
                 MONGODB_PORT = "27017"
-                DISCOVERY_PORT = "8761"
-                EUREKA_INSTANCE_LIST = "http://$PROD_MASTER_1:8761/eureka/,http://$PROD_NODE_1:8761/eureka/"
+                DISCOVERY_PRIMARY_PORT = "8761"
+                DISCOVERY_SECONDARY_PORT = "8762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
             }
             steps {
                 sh "docker-compose -H $INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -36,7 +37,9 @@ pipeline {
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
-                EUREKA_INSTANCE_LIST = "http://$PROD_MASTER_1:8761/eureka/,http://$PROD_NODE_1:8761/eureka/"
+                DISCOVERY_PRIMARY_PORT = "8761"
+                DISCOVERY_SECONDARY_PORT = "8762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
                 MONGODB_HOST = "$PROD_MASTER_1"
                 MONGODB_PORT = "27017"
             }
