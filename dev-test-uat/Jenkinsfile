@@ -118,7 +118,11 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
-                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
+                IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
+                MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
+                MONGODB_PORT = "27017"
+                DISCOVERY_PORT = "8761"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-node-1:8761/eureka/"
             }
             steps {
                 // TODO: execute tests
