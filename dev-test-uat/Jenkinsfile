@@ -33,6 +33,7 @@ pipeline {
     stages {
         stage('Prepare Dev Infrastructure') {
             environment {
+                ENV_PREFIX = "dev"
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
@@ -88,6 +89,7 @@ pipeline {
         }
         stage('Prepare Test Infrastructure') {
             environment {
+                ENV_PREFIX = "test"
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
@@ -118,6 +120,7 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
+                ENV_PREFIX = "test"
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
@@ -153,6 +156,7 @@ pipeline {
         }
         stage('Prepare UAT Infrastructure') {
             environment {
+                ENV_PREFIX = "uat"
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
