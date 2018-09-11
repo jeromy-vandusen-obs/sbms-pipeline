@@ -52,7 +52,7 @@ pipeline {
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
                 ADMIN_PORT = "19999"
                 WEB_PORT = "18080"
-                EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-master-1:18762/eureka/"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:18761/eureka/,http://dev-node-1:18761/eureka/"
                 MONGODB_HOST = "dev-master-1"
                 MONGODB_PORT = "27000"
             }
@@ -108,7 +108,7 @@ pipeline {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
-                EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-master-1:28762/eureka/"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:28761/eureka/,http://dev-node-1:28761/eureka/"
                 MONGODB_HOST = "dev-master-1"
                 MONGODB_PORT = "27001"
             }
@@ -175,7 +175,7 @@ pipeline {
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
-                EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-master-1:8762/eureka/"
+                EUREKA_INSTANCE_LIST = "http://dev-master-1:8761/eureka/,http://dev-node-1:8761/eureka/"
                 MONGODB_HOST = "dev-master-1"
                 MONGODB_PORT = "27017"
             }

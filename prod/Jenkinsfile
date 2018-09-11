@@ -32,7 +32,7 @@ pipeline {
                 IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
-                EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-master-1:8762/eureka/"
+                EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-node-1:8761/eureka/"
                 MONGODB_HOST = "prod-master-1"
                 MONGODB_PORT = "27017"
             }
