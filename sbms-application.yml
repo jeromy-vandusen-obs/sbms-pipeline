@@ -6,6 +6,8 @@ services:
       SERVER_PORT: ${DISCOVERY_PRIMARY_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    networks:
+    - sbms-net
     ports:
     - "${DISCOVERY_PRIMARY_PORT}:${DISCOVERY_PRIMARY_PORT}"
     healthcheck:
@@ -19,6 +21,8 @@ services:
       SERVER_PORT: ${DISCOVERY_SECONDARY_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    networks:
+    - sbms-net
     ports:
     - "${DISCOVERY_SECONDARY_PORT}:${DISCOVERY_SECONDARY_PORT}"
     healthcheck:
