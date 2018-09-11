@@ -1,82 +1,9 @@
 version: "3.6"
 
 services:
-  sbms-discovery-1:
-    environment:
-      SERVER_PORT: ${DISCOVERY_PRIMARY_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
-    image: jvandusen/sbms-discovery:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    ports:
-    - "${DISCOVERY_PRIMARY_PORT}:${DISCOVERY_PRIMARY_PORT}"
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
-    healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 5m
-
-  sbms-discovery-2:
-    environment:
-      SERVER_PORT: ${DISCOVERY_SECONDARY_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
-    image: jvandusen/sbms-discovery:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    ports:
-    - "${DISCOVERY_SECONDARY_PORT}:${DISCOVERY_SECONDARY_PORT}"
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
-    healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 5m
-
-  sbms-admin:
-    environment:
-      SERVER_PORT: ${ADMIN_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
-    image: jvandusen/sbms-admin:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    ports:
-    - "${ADMIN_PORT}:${ADMIN_PORT}"
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
-    healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 5m
-
   sbms-web:
     environment:
       SERVER_PORT: ${WEB_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -84,7 +11,7 @@ services:
     - "${WEB_PORT}:${WEB_PORT}"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 5m
@@ -99,18 +26,15 @@ services:
 
   sbms-greeting:
     environment:
-      SERVER_PORT: ${GREETING_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      SERVER_PORT: 80
       SPRING_DATA_MONGODB_HOST: ${MONGODB_HOST}
       SPRING_DATA_MONGODB_PORT: ${MONGODB_PORT}
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
     networks:
     - sbms-net
-    ports:
-    - "${GREETING_PORT}:${GREETING_PORT}"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 5m
