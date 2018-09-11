@@ -43,6 +43,7 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+      endpoint_mode: dnsrr
       update_config:
         parallelism: 1
         delay: 5m
@@ -67,6 +68,7 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+      endpoint_mode: dnsrr
       update_config:
         parallelism: 1
         delay: 5m
@@ -93,6 +95,7 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+      endpoint_mode: dnsrr
       update_config:
         parallelism: 1
         delay: 5m
