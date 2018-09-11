@@ -2,12 +2,15 @@ pipeline {
     agent any
 
     environment {
-        INFRA_PRIMARY_MANAGER = '172.24.140.83:2375'
-        INFRA_SECONDARY_MANAGER = '172.24.140.90:2375'
-        APP_SWARM_MANAGER = '172.24.140.83:2375'
-        APP_STACK_NAME = 'sbms-prod-app'
-        SOURCE_IMAGE_TAG = 'rc'
-        TARGET_IMAGE_TAG = 'prod'
+        PROD_MASTER_1 = "172.24.140.83"
+        PROD_NODE_1 = "172.24.140.90"
+
+        INFRA_PRIMARY_MANAGER = "${PROD_MASTER_1}:2375"
+        INFRA_SECONDARY_MANAGER = "${PROD_NODE_1}:2375"
+        APP_SWARM_MANAGER = "${PROD_MASTER_1}:2375"
+        APP_STACK_NAME = "sbms-prod-app"
+        SOURCE_IMAGE_TAG = "rc"
+        TARGET_IMAGE_TAG = "prod"
     }
     
     stages {
@@ -18,7 +21,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/mongodb"
                 MONGODB_PORT = "27017"
                 DISCOVERY_PORT = "8761"
-                EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-node-1:8761/eureka/"
+                EUREKA_INSTANCE_LIST = "http://${PROD_MASTER_1}:8761/eureka/,http://${PROD_NODE_1}:8761/eureka/"
             }
             steps {
                 sh "docker-compose -H $INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -32,8 +35,8 @@ pipeline {
                 IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
-                EUREKA_INSTANCE_LIST = "http://prod-master-1:8761/eureka/,http://prod-node-1:8761/eureka/"
-                MONGODB_HOST = "prod-master-1"
+                EUREKA_INSTANCE_LIST = "http://${PROD_MASTER_1}:8761/eureka/,http://${PROD_NODE_1}:8761/eureka/"
+                MONGODB_HOST = "${PROD_MASTER_1}"
                 MONGODB_PORT = "27017"
             }
             steps {

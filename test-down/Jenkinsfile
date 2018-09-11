@@ -2,10 +2,13 @@ pipeline {
     agent any
 
     environment {
-        INFRA_PRIMARY_MANAGER = '172.24.140.88:2375'
-        INFRA_SECONDARY_MANAGER = '172.24.140.82:2375'
-        APP_SWARM_MANAGER = '172.24.140.88:2375'
-        APP_STACK_NAME = 'sbms-test-app'
+        DEV_MASTER_1 = "172.24.140.88"
+        DEV_NODE_1 = "172.24.140.82"
+
+        INFRA_PRIMARY_MANAGER = "${DEV_MASTER_1}:2375"
+        INFRA_SECONDARY_MANAGER = "${DEV_NODE_1}:2375"
+        APP_SWARM_MANAGER = "${DEV_MASTER_1}:2375"
+        APP_STACK_NAME = "sbms-test-app"
         COMPOSE_PROJECT_NAME = "sbms-test-infra"
     }
 
