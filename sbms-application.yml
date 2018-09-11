@@ -3,12 +3,13 @@ version: "3.6"
 services:
   sbms-admin:
     environment:
+      SERVER_PORT: ${ADMIN_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-admin:${IMAGE_TAG}
     networks:
     - sbms-net
     ports:
-    - "${ADMIN_PORT}:8080"
+    - "${ADMIN_PORT}:${ADMIN_PORT}"
     deploy:
       mode: replicated
       replicas: 2
@@ -26,12 +27,13 @@ services:
 
   sbms-web:
     environment:
+      SERVER_PORT: ${WEB_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
     - sbms-net
     ports:
-    - "${WEB_PORT}:8080"
+    - "${WEB_PORT}:${WEB_PORT}"
     deploy:
       mode: replicated
       replicas: 2
@@ -49,12 +51,15 @@ services:
 
   sbms-greeting:
     environment:
+      SERVER_PORT: ${GREETING_PORT}
       EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
       SPRING_DATA_MONGODB_HOST: ${MONGODB_HOST}
       SPRING_DATA_MONGODB_PORT: ${MONGODB_PORT}
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
     networks:
     - sbms-net
+    ports:
+    - "${GREETING_PORT}:${GREETING_PORT}"
     deploy:
       mode: replicated
       replicas: 2
