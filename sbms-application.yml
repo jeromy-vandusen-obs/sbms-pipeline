@@ -12,7 +12,7 @@ services:
     - "${ADMIN_PORT}:${ADMIN_PORT}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5m
@@ -36,7 +36,7 @@ services:
     - "${WEB_PORT}:${WEB_PORT}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5m
@@ -62,7 +62,7 @@ services:
     - "${GREETING_PORT}:${GREETING_PORT}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5m
