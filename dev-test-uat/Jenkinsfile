@@ -108,14 +108,20 @@ pipeline {
         }
         stage('Deploy to Test') {
             environment {
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-test-app"
+                SOURCE_IMAGE_TAG = "dev"
                 IMAGE_TAG = "test"
+
                 ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
                 GREETING_PORT = "28100"
                 DISCOVERY_PORT = "28761"
+
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27001"
+
                 NETWORK_NAME = "sbms-test-net"
             }
             steps {
