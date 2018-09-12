@@ -8,6 +8,7 @@ pipeline {
         INFRA_MANAGER = "$DEV_MASTER_1:2375"
         APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         APP_STACK_NAME = "sbms-dev-app"
+        COMPOSE_PROJECT_NAME = "sbms-dev-infra"
         NETWORK_NAME = "sbms-dev-net"
         NETWORK_HOST = "$INFRA_MANAGER"
     }
