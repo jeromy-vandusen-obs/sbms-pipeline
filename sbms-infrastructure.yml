@@ -6,7 +6,7 @@ services:
     networks:
     - sbms-net
     ports:
-    - "${MONGODB_PORT}:27017"
+    - "${MONGODB_PORT}:${MONGODB_PORT}"
     volumes:
     - "${MONGODB_DATA_PATH}:/data/db"
 
