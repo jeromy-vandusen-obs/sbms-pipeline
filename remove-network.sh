@@ -1,1 +1,1 @@
-docker -H $NETWORK_HOST network rm $NETWORK_NAME
+docker -H $NETWORK_HOST network rm $NETWORK_NAME || true
