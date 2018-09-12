@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        PROD_MASTER_1 = "172.24.140.83"
-        PROD_NODE_1 = "172.24.140.90"
+        PROD_HOST = "172.24.140.83"
 
-        INFRA_MANAGER = "$PROD_MASTER_1:2375"
-        APP_SWARM_MANAGER = "$PROD_MASTER_1:2375"
+        INFRA_MANAGER = "$PROD_HOST:2375"
+        APP_SWARM_MANAGER = "$PROD_HOST:2375"
         APP_STACK_NAME = "sbms-prod-app"
         COMPOSE_PROJECT_NAME = "sbms-prod-infra"
         NETWORK_NAME = "sbms-prod-net"

@@ -2,27 +2,25 @@ pipeline {
     agent any
 
     environment {
-        PROD_MASTER_1 = "172.24.140.83"
-        PROD_NODE_1 = "172.24.140.90"
+        PROD_HOST = "172.24.140.83"
 
-        INFRA_MANAGER = "$PROD_MASTER_1:2375"
-        APP_SWARM_MANAGER = "$PROD_MASTER_1:2375"
+        INFRA_MANAGER = "$PROD_HOST:2375"
+        APP_SWARM_MANAGER = "$PROD_HOST:2375"
         APP_STACK_NAME = "sbms-prod-app"
-        SOURCE_IMAGE_TAG = "rc"
-        TARGET_IMAGE_TAG = "prod"
+        IMAGE_TAG = "prod"
+
+        MONGODB_PORT = "27017"
+        DISCOVERY_PORT = "8761"
+        EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PORT/eureka/"
+
+        NETWORK_NAME = "sbms-prod-net"
     }
     
     stages {
         stage('Prepare Infrastructure') {
             environment {
                 COMPOSE_PROJECT_NAME = "sbms-prod-infra"
-                IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/mongodb"
-                MONGODB_PORT = "27017"
-                DISCOVERY_PRIMARY_PORT = "8761"
-                DISCOVERY_SECONDARY_PORT = "8762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
-                NETWORK_NAME = "sbms-prod-net"
                 NETWORK_HOST = "$INFRA_MANAGER"
             }
             steps {
@@ -34,30 +32,24 @@ pipeline {
         }
         stage('Deploy Application') {
             environment {
-                IMAGE_TAG = "$TARGET_IMAGE_TAG"
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
-                DISCOVERY_PRIMARY_PORT = "8761"
-                DISCOVERY_SECONDARY_PORT = "8762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
-                MONGODB_HOST = "$PROD_MASTER_1"
-                MONGODB_PORT = "27017"
-                NETWORK_NAME = "sbms-prod-net"
+                MONGODB_HOST = "sbms-mongo"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
 
                     sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $APP_STACK_NAME"
 
-                    sh "docker push jvandusen/sbms-discovery:$TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
         }

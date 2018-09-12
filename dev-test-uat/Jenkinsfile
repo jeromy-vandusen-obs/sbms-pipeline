@@ -7,118 +7,114 @@ pipeline {
     }
 
     environment {
-        DEV_MASTER_1 = "172.24.140.88"
-        DEV_NODE_1 = "172.24.140.82"
-
-        DEV_INFRA_MANAGER = "$DEV_MASTER_1:2375"
-        DEV_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
-        DEV_APP_STACK_NAME = "sbms-dev-app"
-        DEV_SOURCE_IMAGE_TAG = "latest"
-        DEV_TARGET_IMAGE_TAG = "dev"
-
-        TEST_INFRA_MANAGER = "$DEV_MASTER_1:2375"
-        TEST_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
-        TEST_APP_STACK_NAME = "sbms-test-app"
-        TEST_SOURCE_IMAGE_TAG = "dev"
-        TEST_TARGET_IMAGE_TAG = "test"
-        TEST_PASSED_IMAGE_TAG = "test-passed"
-
-        UAT_INFRA_MANAGER = "$DEV_MASTER_1:2375"
-        UAT_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
-        UAT_APP_STACK_NAME = "sbms-uat-app"
-        UAT_SOURCE_IMAGE_TAG = "test-passed"
-        UAT_TARGET_IMAGE_TAG = "uat"
+        DEV_HOST = "172.24.140.88"
     }
     
     stages {
         stage('Prepare Dev Infrastructure') {
             environment {
+                INFRA_MANAGER = "$DEV_HOST:2375"
                 COMPOSE_PROJECT_NAME = "sbms-dev-infra"
-                IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
+                IMAGE_TAG = "dev"
+                
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
                 DISCOVERY_PORT = "18761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                NETWORK_HOST = "$DEV_INFRA_MANAGER"
+                
+                NETWORK_HOST = "$INFRA_MANAGER"
                 NETWORK_NAME = "sbms-dev-net"
             }
             steps {
                 sh "chmod +x ./create-network.sh"
                 sh "./create-network.sh"
-                sh "docker-compose -H $DEV_INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $DEV_INFRA_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to Dev') {
             environment {
-                IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-dev-app"
+                SOURCE_IMAGE_TAG = "latest"
+                IMAGE_TAG = "dev"
+                
                 ADMIN_PORT = "19999"
                 WEB_PORT = "18080"
                 GREETING_PORT = "18100"
                 DISCOVERY_PORT = "18761"
+                
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                MONGODB_HOST = "$DEV_MASTER_1"
+                MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27000"
+                
                 NETWORK_NAME = "sbms-dev-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$DEV_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$MAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
                     
-                    sh "docker -H $DEV_APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $DEV_APP_STACK_NAME"
+                    sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $APP_STACK_NAME"
                     
-                    sh "docker push jvandusen/sbms-discovery:$DEV_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$DEV_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$DEV_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$DEV_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
         }
         stage('Prepare Images for Test') {
+            environment {
+                SOURCE_IMAGE_TAG = "dev"
+                IMAGE_TAG = "test"
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$TEST_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-admin:$TEST_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-web:$TEST_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$TEST_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
 
-                    sh "docker push jvandusen/sbms-discovery:$TEST_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$TEST_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$TEST_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$TEST_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
         }
         stage('Prepare Test Infrastructure') {
             environment {
+                INFRA_MANAGER = "$DEV_HOST:2375"
                 COMPOSE_PROJECT_NAME = "sbms-test-infra"
-                IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
+                IMAGE_TAG = "test"
+                
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
                 DISCOVERY_PORT = "28761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                
                 NETWORK_NAME = "sbms-test-net"
-                NETWORK_HOST = "$TEST_INFRA_MANAGER"
+                NETWORK_HOST = "$INFRA_MANAGER"
             }
             steps {
                 sh "chmod +x ./create-network.sh"
                 sh "./create-network.sh"
-                sh "docker-compose -H $TEST_INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $TEST_INFRA_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to Test') {
             environment {
-                IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
+                IMAGE_TAG = "test"
                 ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
                 GREETING_PORT = "28100"
                 DISCOVERY_PORT = "28761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                MONGODB_HOST = "$DEV_MASTER_1"
+                MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27001"
                 NETWORK_NAME = "sbms-test-net"
             }
@@ -130,14 +126,20 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
+                INFRA_MANAGER = "$DEV_HOST:2375"
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-test-app"
+                
                 COMPOSE_PROJECT_NAME = "sbms-test-infra"
-                IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
+                IMAGE_TAG = "test"
+                
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
                 DISCOVERY_PORT = "28761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                
                 NETWORK_NAME = "sbms-test-net"
-                NETWORK_HOST = "$TEST_INFRA_MANAGER"
+                NETWORK_HOST = "$INFRA_MANAGER"
             }
             steps {
                 // TODO: execute tests
@@ -145,8 +147,8 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker -H $TEST_APP_SWARM_MANAGER stack rm $TEST_APP_STACK_NAME"
-                    sh "docker-compose -H $TEST_INFRA_MANAGER -f sbms-infrastructure.yml down"
+                    sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
+                    sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml down"
                     sh "chmod +x ./remove-network.sh"
                     sh "./remove-network.sh"
                     sh "rm -rf $MONGODB_DATA_PATH/*"
@@ -154,63 +156,76 @@ pipeline {
             }
         }
         stage ('Tag Tested Images') {
+            environment {
+                SOURCE_IMAGE_TAG = "test"
+                IMAGE_TAG = "test-passed"
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-discovery:$TEST_PASSED_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-admin:$TEST_PASSED_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-web:$TEST_PASSED_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$TEST_TARGET_IMAGE_TAG jvandusen/sbms-greeting:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
 
-                    sh "docker push jvandusen/sbms-discovery:$TEST_PASSED_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$TEST_PASSED_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$TEST_PASSED_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$TEST_PASSED_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
         }
         stage('Prepare UAT Infrastructure') {
             environment {
+                INFRA_MANAGER = "$DEV_HOST:2375"
                 COMPOSE_PROJECT_NAME = "sbms-uat-infra"
-                IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
+                IMAGE_TAG = "uat"
+                
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
                 DISCOVERY_PORT = "8761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                
                 NETWORK_NAME = "sbms-uat-net"
-                NETWORK_HOST = "$UAT_INFRA_MANAGER"
+                NETWORK_HOST = "$INFRA_MANAGER"
             }
             steps {
                 sh "chmod +x ./create-network.sh"
                 sh "./create-network.sh"
-                sh "docker-compose -H $UAT_INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $UAT_INFRA_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to UAT') {
             environment {
-                IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-uat-app"
+                SOURCE_IMAGE_TAG = "test-passed"
+                IMAGE_TAG = "uat"
+                
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
                 DISCOVERY_PORT = "8761"
+                
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                MONGODB_HOST = "$DEV_MASTER_1"
+                MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27017"
+                
                 NETWORK_NAME = "sbms-uat-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$UAT_SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
 
-                    sh "docker -H $UAT_APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $UAT_APP_STACK_NAME"
+                    sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $APP_STACK_NAME"
 
-                    sh "docker push jvandusen/sbms-discovery:$UAT_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$UAT_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$UAT_TARGET_IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$UAT_TARGET_IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
         }
