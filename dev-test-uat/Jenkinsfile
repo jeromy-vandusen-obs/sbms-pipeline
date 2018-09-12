@@ -195,6 +195,7 @@ pipeline {
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27017"
+                NETWORK_NAME = "sbms-uat-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
