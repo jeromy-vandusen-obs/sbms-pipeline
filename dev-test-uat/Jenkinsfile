@@ -145,7 +145,8 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker-compose -H $UAT_INFRA_MANAGER -f sbms-infrastructure.yml down"
+                    sh "docker -H $TEST_APP_SWARM_MANAGER stack rm $TEST_APP_STACK_NAME"
+                    sh "docker-compose -H $TEST_INFRA_MANAGER -f sbms-infrastructure.yml down"
                     sh "chmod +x ./remove-network.sh"
                     sh "./remove-network.sh"
                     sh "rm -rf $MONGODB_DATA_PATH/*"
