@@ -145,8 +145,7 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml down"
-                    sh "docker-compose -H $UAT_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml down"
+                    sh "docker-compose -H $UAT_INFRA_MANAGER -f sbms-infrastructure.yml down"
                     sh "chmod +x ./remove-network.sh"
                     sh "./remove-network.sh"
                     sh "rm -rf $MONGODB_DATA_PATH/*"
