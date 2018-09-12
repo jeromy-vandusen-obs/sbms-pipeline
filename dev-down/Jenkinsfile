@@ -9,6 +9,7 @@ pipeline {
         APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         APP_STACK_NAME = "sbms-dev-app"
         NETWORK_NAME = "sbms-dev-net"
+        NETWORK_HOST = "$INFRA_MANAGER"
     }
     
     stages {

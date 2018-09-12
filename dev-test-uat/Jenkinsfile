@@ -38,6 +38,7 @@ pipeline {
                 MONGODB_PORT = "27000"
                 DISCOVERY_PORT = "18761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                NETWORK_HOST = "$DEV_INFRA_MANAGER"
                 NETWORK_NAME = "sbms-dev-net"
             }
             steps {
@@ -98,6 +99,7 @@ pipeline {
                 DISCOVERY_PORT = "28761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 NETWORK_NAME = "sbms-test-net"
+                NETWORK_HOST = "$TEST_INFRA_MANAGER"
             }
             steps {
                 sh "chmod +x ./create-network.sh"
@@ -132,6 +134,7 @@ pipeline {
                 DISCOVERY_PORT = "28761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 NETWORK_NAME = "sbms-test-net"
+                NETWORK_HOST = "$TEST_INFRA_MANAGER"
             }
             steps {
                 // TODO: execute tests
@@ -170,6 +173,7 @@ pipeline {
                 DISCOVERY_PORT = "8761"
                 EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 NETWORK_NAME = "sbms-uat-net"
+                NETWORK_HOST = "$UAT_INFRA_MANAGER"
             }
             steps {
                 sh "chmod +x ./create-network.sh"
