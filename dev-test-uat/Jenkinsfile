@@ -54,7 +54,7 @@ pipeline {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$MAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
                     
                     sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $APP_STACK_NAME"
