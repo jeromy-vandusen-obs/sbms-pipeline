@@ -49,6 +49,11 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker pull jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-admin:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-web:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG"
+
                     sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
