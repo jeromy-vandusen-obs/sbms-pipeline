@@ -120,7 +120,7 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker -H $TEST_APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $TEST_APP_STACK_NAME"
+                    sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file sbms-application.yml --resolve-image always --prune $APP_STACK_NAME"
                 }
             }
         }
