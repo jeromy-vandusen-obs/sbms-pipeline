@@ -20,8 +20,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
                 DISCOVERY_PORT = "18761"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                
+
                 NETWORK_HOST = "$INFRA_MANAGER"
                 NETWORK_NAME = "sbms-dev-net"
             }
@@ -44,8 +43,6 @@ pipeline {
                 GREETING_PORT = "18100"
                 DISCOVERY_PORT = "18761"
                 
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27000"
                 
                 NETWORK_NAME = "sbms-dev-net"
@@ -94,8 +91,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
                 DISCOVERY_PORT = "28761"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                
+
                 NETWORK_NAME = "sbms-test-net"
                 NETWORK_HOST = "$INFRA_MANAGER"
             }
@@ -118,8 +114,6 @@ pipeline {
                 GREETING_PORT = "28100"
                 DISCOVERY_PORT = "28761"
 
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27001"
 
                 NETWORK_NAME = "sbms-test-net"
@@ -142,8 +136,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
                 DISCOVERY_PORT = "28761"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                
+
                 NETWORK_NAME = "sbms-test-net"
                 NETWORK_HOST = "$INFRA_MANAGER"
             }
@@ -189,8 +182,7 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
                 DISCOVERY_PORT = "8761"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                
+
                 NETWORK_NAME = "sbms-uat-net"
                 NETWORK_HOST = "$INFRA_MANAGER"
             }
@@ -213,8 +205,6 @@ pipeline {
                 GREETING_PORT = "8100"
                 DISCOVERY_PORT = "8761"
                 
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
-                MONGODB_HOST = "sbms-mongo"
                 MONGODB_PORT = "27017"
                 
                 NETWORK_NAME = "sbms-uat-net"

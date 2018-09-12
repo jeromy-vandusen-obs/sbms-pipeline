@@ -11,7 +11,6 @@ pipeline {
 
         MONGODB_PORT = "27017"
         DISCOVERY_PORT = "8761"
-        EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PORT/eureka/"
 
         NETWORK_NAME = "sbms-prod-net"
     }
@@ -35,7 +34,6 @@ pipeline {
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
-                MONGODB_HOST = "sbms-mongo"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {

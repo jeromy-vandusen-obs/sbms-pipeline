@@ -6,19 +6,18 @@ services:
     networks:
     - sbms-net
     ports:
-    - "${MONGODB_PORT}:${MONGODB_PORT}"
+    - "${MONGODB_PORT}:27017"
     volumes:
     - "${MONGODB_DATA_PATH}:/data/db"
 
   sbms-discovery:
     environment:
-      SERVER_PORT: ${DISCOVERY_PORT}
-      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+      EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
     - sbms-net
     ports:
-    - "${DISCOVERY_PORT}:${DISCOVERY_PORT}"
+    - "${DISCOVERY_PORT}:8761"
 
 networks:
   sbms-net:
