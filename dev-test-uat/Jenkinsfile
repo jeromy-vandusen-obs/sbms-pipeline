@@ -3,7 +3,7 @@ pipeline {
 
     triggers {
         pollSCM('H/5 8-16 * * 1-5')
-        upstream(upstreamProjects: 'sbms-web,sbms-greeting', threshold: hudson.model.Result.SUCCESS)
+        upstream(upstreamProjects: 'sbms-discovery,sbms-admin,sbms-web,sbms-greeting', threshold: hudson.model.Result.SUCCESS)
     }
 
     environment {
@@ -40,6 +40,9 @@ pipeline {
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
+                DISCOVERY_PRIMARY_PORT = "18761"
+                DISCOVERY_SECONDARY_PORT = "18762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
             }
             steps {
                 sh "docker-compose -H $DEV_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -51,7 +54,12 @@ pipeline {
         stage('Deploy to Dev') {
             environment {
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
+                ADMIN_PORT = "19999"
                 WEB_PORT = "18080"
+                GREETING_PORT = "18100"
+                DISCOVERY_PRIMARY_PORT = "18761"
+                DISCOVERY_SECONDARY_PORT = "18762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27000"
             }
@@ -92,6 +100,9 @@ pipeline {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
+                DISCOVERY_PRIMARY_PORT = "28761"
+                DISCOVERY_SECONDARY_PORT = "28762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
             }
             steps {
                 sh "docker-compose -H $TEST_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -103,7 +114,12 @@ pipeline {
         stage('Deploy to Test') {
             environment {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
+                ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
+                GREETING_PORT = "28100"
+                DISCOVERY_PRIMARY_PORT = "28761"
+                DISCOVERY_SECONDARY_PORT = "28762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27001"
             }
@@ -119,6 +135,9 @@ pipeline {
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
+                DISCOVERY_PRIMARY_PORT = "28761"
+                DISCOVERY_SECONDARY_PORT = "28762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
             }
             steps {
                 // TODO: execute tests
@@ -153,6 +172,9 @@ pipeline {
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
+                DISCOVERY_PRIMARY_PORT = "8761"
+                DISCOVERY_SECONDARY_PORT = "8762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
             }
             steps {
                 sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
@@ -164,7 +186,12 @@ pipeline {
         stage('Deploy to UAT') {
             environment {
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
+                ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
+                GREETING_PORT = "8100"
+                DISCOVERY_PRIMARY_PORT = "8761"
+                DISCOVERY_SECONDARY_PORT = "8762"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27017"
             }
