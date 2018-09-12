@@ -1,0 +1,1 @@
+docker network create -d overlay -o encrypted --attachable ${NETWORK_NAME}

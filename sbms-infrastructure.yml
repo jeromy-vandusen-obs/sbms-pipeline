@@ -3,7 +3,24 @@ version: "3.6"
 services:
   sbms-mongo:
     image: mongo
+    networks:
+    - sbms-net
     ports:
     - "${MONGODB_PORT}:27017"
     volumes:
     - "${MONGODB_DATA_PATH}:/data/db"
+
+  sbms-discovery:
+    environment:
+      SERVER_PORT: ${DISCOVERY_PORT}
+      EUREKA_INSTANCE_LIST: ${EUREKA_INSTANCE_LIST}
+    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    ports:
+    - "${DISCOVERY_PORT}:${DISCOVERY_PORT}"
+
+networks:
+  sbms-net:
+    name: ${NETWORK_NAME}
+    external: true

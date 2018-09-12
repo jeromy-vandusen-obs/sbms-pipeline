@@ -5,19 +5,19 @@ pipeline {
         DEV_MASTER_1 = "172.24.140.88"
         DEV_NODE_1 = "172.24.140.82"
 
-        INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
-        INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        INFRA_MANAGER = "$DEV_MASTER_1:2375"
         APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         APP_STACK_NAME = "sbms-test-app"
-        COMPOSE_PROJECT_NAME = "sbms-test-infra"
+        NETWORK_NAME = "sbms-test-net"
     }
 
     stages {
         stage('Tear Down Dev') {
             steps {
                 sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
-                sh "docker-compose -H $INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml down"
-                sh "docker-compose -H $INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml down"
+                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml down"
+                sh "chmod +x ./remove-network.sh"
+                sh "./remove-network.sh"
             }
         }
     }

@@ -1,0 +1,1 @@
+docker network rm ${NETWORK_NAME}

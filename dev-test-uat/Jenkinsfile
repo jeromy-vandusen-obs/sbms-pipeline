@@ -10,23 +10,20 @@ pipeline {
         DEV_MASTER_1 = "172.24.140.88"
         DEV_NODE_1 = "172.24.140.82"
 
-        DEV_INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
-        DEV_INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        DEV_INFRA_MANAGER = "$DEV_MASTER_1:2375"
         DEV_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         DEV_APP_STACK_NAME = "sbms-dev-app"
         DEV_SOURCE_IMAGE_TAG = "latest"
         DEV_TARGET_IMAGE_TAG = "dev"
 
-        TEST_INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
-        TEST_INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        TEST_INFRA_MANAGER = "$DEV_MASTER_1:2375"
         TEST_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         TEST_APP_STACK_NAME = "sbms-test-app"
         TEST_SOURCE_IMAGE_TAG = "dev"
         TEST_TARGET_IMAGE_TAG = "test"
         TEST_PASSED_IMAGE_TAG = "test-passed"
 
-        UAT_INFRA_PRIMARY_MANAGER = "$DEV_MASTER_1:2375"
-        UAT_INFRA_SECONDARY_MANAGER = "$DEV_NODE_1:2375"
+        UAT_INFRA_MANAGER = "$DEV_MASTER_1:2375"
         UAT_APP_SWARM_MANAGER = "$DEV_MASTER_1:2375"
         UAT_APP_STACK_NAME = "sbms-uat-app"
         UAT_SOURCE_IMAGE_TAG = "test-passed"
@@ -36,19 +33,18 @@ pipeline {
     stages {
         stage('Prepare Dev Infrastructure') {
             environment {
-                COMPOSE_PROJECT_NAME = "sbms-dev-infra"
                 IMAGE_TAG = "$DEV_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
-                DISCOVERY_PRIMARY_PORT = "18761"
-                DISCOVERY_SECONDARY_PORT = "18762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "18761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                NETWORK_NAME = "sbms-dev-net"
             }
             steps {
-                sh "docker-compose -H $DEV_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $DEV_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml up -d"
-                sh "docker-compose -H $DEV_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $DEV_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "chmod +x ./create-network.sh"
+                sh "./create-network.sh"
+                sh "docker-compose -H $DEV_INFRA_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $DEV_INFRA_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to Dev') {
@@ -57,11 +53,11 @@ pipeline {
                 ADMIN_PORT = "19999"
                 WEB_PORT = "18080"
                 GREETING_PORT = "18100"
-                DISCOVERY_PRIMARY_PORT = "18761"
-                DISCOVERY_SECONDARY_PORT = "18762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "18761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27000"
+                NETWORK_NAME = "sbms-dev-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -96,19 +92,18 @@ pipeline {
         }
         stage('Prepare Test Infrastructure') {
             environment {
-                COMPOSE_PROJECT_NAME = "sbms-test-infra"
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
-                DISCOVERY_PRIMARY_PORT = "28761"
-                DISCOVERY_SECONDARY_PORT = "28762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "28761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                NETWORK_NAME = "sbms-test-net"
             }
             steps {
-                sh "docker-compose -H $TEST_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $TEST_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml up -d"
-                sh "docker-compose -H $TEST_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $TEST_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "chmod +x ./create-network.sh"
+                sh "./create-network.sh"
+                sh "docker-compose -H $TEST_INFRA_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $TEST_INFRA_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to Test') {
@@ -117,11 +112,11 @@ pipeline {
                 ADMIN_PORT = "29999"
                 WEB_PORT = "28080"
                 GREETING_PORT = "28100"
-                DISCOVERY_PRIMARY_PORT = "28761"
-                DISCOVERY_SECONDARY_PORT = "28762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "28761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27001"
+                NETWORK_NAME = "sbms-test-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -131,13 +126,12 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
-                COMPOSE_PROJECT_NAME = "sbms-test-infra"
                 IMAGE_TAG = "$TEST_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
-                DISCOVERY_PRIMARY_PORT = "28761"
-                DISCOVERY_SECONDARY_PORT = "28762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "28761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                NETWORK_NAME = "sbms-test-net"
             }
             steps {
                 // TODO: execute tests
@@ -147,6 +141,8 @@ pipeline {
                 always {
                     sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml down"
                     sh "docker-compose -H $UAT_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml down"
+                    sh "chmod +x ./remove-network.sh"
+                    sh "./remove-network.sh"
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
             }
@@ -168,19 +164,18 @@ pipeline {
         }
         stage('Prepare UAT Infrastructure') {
             environment {
-                COMPOSE_PROJECT_NAME = "sbms-uat-infra"
                 IMAGE_TAG = "$UAT_TARGET_IMAGE_TAG"
                 MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
-                DISCOVERY_PRIMARY_PORT = "8761"
-                DISCOVERY_SECONDARY_PORT = "8762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "8761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
+                NETWORK_NAME = "sbms-uat-net"
             }
             steps {
-                sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $UAT_INFRA_PRIMARY_MANAGER -f sbms-infrastructure.yml up -d"
-                sh "docker-compose -H $UAT_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $UAT_INFRA_SECONDARY_MANAGER -f sbms-infrastructure.yml up -d"
+                sh "chmod +x ./create-network.sh"
+                sh "./create-network.sh"
+                sh "docker-compose -H $UAT_INFRA_MANAGER -f sbms-infrastructure.yml pull"
+                sh "docker-compose -H $UAT_INFRA_MANAGER -f sbms-infrastructure.yml up -d"
             }
         }
         stage('Deploy to UAT') {
@@ -189,9 +184,8 @@ pipeline {
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
-                DISCOVERY_PRIMARY_PORT = "8761"
-                DISCOVERY_SECONDARY_PORT = "8762"
-                EUREKA_INSTANCE_LIST = "http://sbms-discovery-1:$DISCOVERY_PRIMARY_PORT/eureka/,http://sbms-discovery-2:$DISCOVERY_SECONDARY_PORT/eureka/"
+                DISCOVERY_PORT = "8761"
+                EUREKA_INSTANCE_LIST = "http://sbms-discovery:$DISCOVERY_PORT/eureka/"
                 MONGODB_HOST = "$DEV_MASTER_1"
                 MONGODB_PORT = "27017"
             }
