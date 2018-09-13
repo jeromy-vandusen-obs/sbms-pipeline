@@ -9,40 +9,33 @@ pipeline {
 
     environment {
         PROD_HOST = "172.24.140.83"
-
-        INFRA_MANAGER = "$PROD_HOST:2375"
-        APP_SWARM_MANAGER = "$PROD_HOST:2375"
-        APP_STACK_NAME = "sbms-prod-app"
-        IMAGE_TAG = "prod"
-
-        MONGODB_PORT = "27017"
-        DISCOVERY_PORT = "8761"
-
-        NETWORK_NAME = "sbms-prod-net"
     }
     
     stages {
-        stage('Prepare Infrastructure') {
-            environment {
-                COMPOSE_PROJECT_NAME = "sbms-prod-infra"
-                MONGODB_DATA_PATH = "/opt/sbms/mongodb"
-                NETWORK_HOST = "$INFRA_MANAGER"
-            }
-            steps {
-                sh "chmod +x ./create-network.sh"
-                sh "./create-network.sh"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
-            }
-        }
         stage('Deploy Application') {
             environment {
+                APP_SWARM_MANAGER = "$PROD_HOST:2375"
+                APP_STACK_NAME = "sbms-prod-app"
+                SOURCE_IMAGE_TAG = "rc"
+                IMAGE_TAG = "prod"
+
                 ADMIN_PORT = "9999"
                 WEB_PORT = "8080"
                 GREETING_PORT = "8100"
+                DISCOVERY_PORT = "8761"
+
+                MONGODB_DATA_PATH = "/opt/sbms/mongodb"
+                MONGODB_PORT = "27017"
+
+                NETWORK_NAME = "sbms-prod-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker pull jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-admin:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-web:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG"
+
                     sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
                     sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"

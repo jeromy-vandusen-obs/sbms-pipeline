@@ -1,6 +1,34 @@
 version: "3.6"
 
 services:
+  sbms-mongo:
+    image: mongo
+    networks:
+    - sbms-net
+    ports:
+    - "${MONGODB_PORT}:27017"
+    volumes:
+    - "${MONGODB_DATA_PATH}:/data/db"
+    deploy:
+      mode: replicated
+      replicas: 1
+    healthcheck:
+      start_period: 1m
+
+  sbms-discovery:
+    environment:
+      EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
+    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+    networks:
+    - sbms-net
+    ports:
+    - "${DISCOVERY_PORT}:8761"
+    deploy:
+      mode: replicated
+      replicas: 1
+    healthcheck:
+      start_period: 5m
+
   sbms-admin:
     environment:
       EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
@@ -19,9 +47,6 @@ services:
         monitor: 5m
         max_failure_ratio: 0.3
     healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
       start_period: 5m
 
   sbms-web:
@@ -42,9 +67,6 @@ services:
         monitor: 5m
         max_failure_ratio: 0.3
     healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
       start_period: 5m
 
   sbms-greeting:
@@ -66,12 +88,11 @@ services:
         monitor: 5m
         max_failure_ratio: 0.3
     healthcheck:
-      interval: 30s
-      timeout: 30s
-      retries: 3
       start_period: 5m
 
 networks:
   sbms-net:
     name: ${NETWORK_NAME}
-    external: true
+    driver: overlay
+    driver_opts:
+      encrypted: "true"

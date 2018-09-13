@@ -9,22 +9,16 @@ pipeline {
 
     environment {
         PROD_HOST = "172.24.140.83"
-
-        INFRA_MANAGER = "$PROD_HOST:2375"
-        APP_SWARM_MANAGER = "$PROD_HOST:2375"
-        APP_STACK_NAME = "sbms-prod-app"
-        COMPOSE_PROJECT_NAME = "sbms-prod-infra"
-        NETWORK_NAME = "sbms-prod-net"
-        NETWORK_HOST = "$INFRA_MANAGER"
     }
 
     stages {
+        environment {
+            APP_SWARM_MANAGER = "$PROD_HOST:2375"
+            APP_STACK_NAME = "sbms-prod-app"
+        }
         stage('Tear Down Dev') {
             steps {
                 sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml down"
-                sh "chmod +x ./remove-network.sh"
-                sh "./remove-network.sh"
             }
         }
     }

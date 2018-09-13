@@ -17,26 +17,6 @@ pipeline {
     }
     
     stages {
-        stage('Prepare Dev Infrastructure') {
-            environment {
-                INFRA_MANAGER = "$DEV_HOST:2375"
-                COMPOSE_PROJECT_NAME = "sbms-dev-infra"
-                IMAGE_TAG = "dev"
-                
-                MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
-                MONGODB_PORT = "27000"
-                DISCOVERY_PORT = "18761"
-
-                NETWORK_HOST = "$INFRA_MANAGER"
-                NETWORK_NAME = "sbms-dev-net"
-            }
-            steps {
-                sh "chmod +x ./create-network.sh"
-                sh "./create-network.sh"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
-            }
-        }
         stage('Deploy to Dev') {
             environment {
                 APP_SWARM_MANAGER = "$DEV_HOST:2375"
@@ -48,7 +28,8 @@ pipeline {
                 WEB_PORT = "18080"
                 GREETING_PORT = "18100"
                 DISCOVERY_PORT = "18761"
-                
+
+                MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
                 MONGODB_PORT = "27000"
                 
                 NETWORK_NAME = "sbms-dev-net"
@@ -93,26 +74,6 @@ pipeline {
                 }
             }
         }
-        stage('Prepare Test Infrastructure') {
-            environment {
-                INFRA_MANAGER = "$DEV_HOST:2375"
-                COMPOSE_PROJECT_NAME = "sbms-test-infra"
-                IMAGE_TAG = "test"
-                
-                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
-                MONGODB_PORT = "27001"
-                DISCOVERY_PORT = "28761"
-
-                NETWORK_NAME = "sbms-test-net"
-                NETWORK_HOST = "$INFRA_MANAGER"
-            }
-            steps {
-                sh "chmod +x ./create-network.sh"
-                sh "./create-network.sh"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
-            }
-        }
         stage('Deploy to Test') {
             environment {
                 APP_SWARM_MANAGER = "$DEV_HOST:2375"
@@ -125,6 +86,7 @@ pipeline {
                 GREETING_PORT = "28100"
                 DISCOVERY_PORT = "28761"
 
+                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
                 MONGODB_PORT = "27001"
 
                 NETWORK_NAME = "sbms-test-net"
@@ -137,19 +99,9 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
-                INFRA_MANAGER = "$DEV_HOST:2375"
                 APP_SWARM_MANAGER = "$DEV_HOST:2375"
                 APP_STACK_NAME = "sbms-test-app"
-                
-                COMPOSE_PROJECT_NAME = "sbms-test-infra"
-                IMAGE_TAG = "test"
-                
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
-                MONGODB_PORT = "27001"
-                DISCOVERY_PORT = "28761"
-
-                NETWORK_NAME = "sbms-test-net"
-                NETWORK_HOST = "$INFRA_MANAGER"
             }
             steps {
                 // TODO: execute tests
@@ -158,9 +110,6 @@ pipeline {
             post {
                 always {
                     sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
-                    sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml down"
-                    sh "chmod +x ./remove-network.sh"
-                    sh "./remove-network.sh"
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
             }
@@ -184,26 +133,6 @@ pipeline {
                 }
             }
         }
-        stage('Prepare UAT Infrastructure') {
-            environment {
-                INFRA_MANAGER = "$DEV_HOST:2375"
-                COMPOSE_PROJECT_NAME = "sbms-uat-infra"
-                IMAGE_TAG = "uat"
-                
-                MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
-                MONGODB_PORT = "27017"
-                DISCOVERY_PORT = "8761"
-
-                NETWORK_NAME = "sbms-uat-net"
-                NETWORK_HOST = "$INFRA_MANAGER"
-            }
-            steps {
-                sh "chmod +x ./create-network.sh"
-                sh "./create-network.sh"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml pull"
-                sh "docker-compose -H $INFRA_MANAGER -f sbms-infrastructure.yml up -d"
-            }
-        }
         stage('Deploy to UAT') {
             environment {
                 APP_SWARM_MANAGER = "$DEV_HOST:2375"
@@ -216,6 +145,7 @@ pipeline {
                 GREETING_PORT = "8100"
                 DISCOVERY_PORT = "8761"
                 
+                MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
                 MONGODB_PORT = "27017"
                 
                 NETWORK_NAME = "sbms-uat-net"
