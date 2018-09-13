@@ -56,4 +56,12 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            slackSend ":sunrise: The DEV environment has been deployed."
+        }
+        failure {
+            slackSend ":exclamation: The DEV environment did not deploy properly and may be in an unstable state."
+        }
+    }
 }

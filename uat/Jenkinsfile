@@ -56,4 +56,12 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            slackSend ":sunrise: The UAT environment has been deployed."
+        }
+        failure {
+            slackSend ":exclamation: The UAT environment did not deploy properly and may be in an unstable state."
+        }
+    }
 }
