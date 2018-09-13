@@ -100,12 +100,4 @@ pipeline {
             }
         }
     }
-    post {
-        success {
-            slackSend ":sunrise: The TEST environment has been deployed."
-        }
-        failure {
-            slackSend ":exclamation: The TEST environment did not deploy properly and may be in an unstable state."
-        }
-    }
 }
