@@ -22,4 +22,12 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            slackSend ":warning: The UAT environment has been taken down."
+        }
+        failure {
+            slackSend ":exclamation: The UAT environment did not shut down properly and may be in an unstable state."
+        }
+    }
 }
