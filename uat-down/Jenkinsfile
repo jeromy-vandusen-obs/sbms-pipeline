@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
     environment {
         DEV_HOST = "172.24.140.88"
 
