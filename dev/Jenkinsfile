@@ -58,10 +58,10 @@ pipeline {
     }
     post {
         success {
-            slackSend ":sunrise: The DEV environment has been deployed."
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :information_source: The *DEV* environment has been deployed."
         }
         failure {
-            slackSend ":exclamation: The DEV environment did not deploy properly and may be in an unstable state."
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: The *DEV* environment did not deploy properly and may be in an unstable state."
         }
     }
 }

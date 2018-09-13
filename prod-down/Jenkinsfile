@@ -24,10 +24,10 @@ pipeline {
     }
     post {
         success {
-            slackSend ":lightning: The PROD environment has been taken down."
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :lightning: *The PROD environment has been taken down.*"
         }
         failure {
-            slackSend ":rotating_light: The PROD environment did not shut down properly and may be in an unstable state."
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :rotating_light: *The PROD environment did not shut down properly and may be in an unstable state.*"
         }
     }
 }

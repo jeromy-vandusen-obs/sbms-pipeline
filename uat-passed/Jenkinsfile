@@ -28,4 +28,12 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :information_source: The application in UAT has been accepted as a Release Candidate."
+        }
+        failure {
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: The application in UAT was not able to be accepted as a Release Candidate."
+        }
+    }
 }

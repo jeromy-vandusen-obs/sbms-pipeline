@@ -53,10 +53,10 @@ pipeline {
     }
     post {
         success {
-            slackSend ":trophy: Production deployment successfully completed!"
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :trophy: *Production deployment successfully completed!*"
         }
         failure {
-            slackSend ":boom: Production deployment failed!"
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :boom: *Production deployment failed!*"
         }
     }
 }

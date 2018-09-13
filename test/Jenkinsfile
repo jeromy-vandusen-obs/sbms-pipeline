@@ -54,6 +54,11 @@ pipeline {
                     sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
+            post {
+                failure {
+                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: The *TEST* environment did not deploy properly and tests were not executed."
+                }
+            }
         }
         stage('Run Tests') {
             environment {
@@ -71,7 +76,7 @@ pipeline {
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
                 failure {
-                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :fire: Failed :fire:"
+                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :fire: There were test failures. :fire:"
                 }
             }
         }
@@ -95,9 +100,14 @@ pipeline {
             }
             post {
                 failure {
-                    slackSend ":warning: Tests were completed, but images were not properly marked as test-passed."
+                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: Tests were completed, but images were not properly marked as test-passed."
                 }
             }
+        }
+    }
+    post {
+        success {
+            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :information_source: All tests passed."
         }
     }
 }
