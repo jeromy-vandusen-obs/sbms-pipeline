@@ -17,12 +17,12 @@ services:
 
   sbms-discovery:
     environment:
-      EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
+      EUREKA_INSTANCE_LIST: http://sbms-discovery:8080/eureka/
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
     - sbms-net
     ports:
-    - "${DISCOVERY_PORT}:8761"
+    - "${DISCOVERY_PORT}:8080"
     deploy:
       mode: replicated
       replicas: 1
@@ -31,7 +31,7 @@ services:
 
   sbms-admin:
     environment:
-      EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
+      EUREKA_INSTANCE_LIST: http://sbms-discovery:8080/eureka/
     image: jvandusen/sbms-admin:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -51,7 +51,7 @@ services:
 
   sbms-web:
     environment:
-      EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
+      EUREKA_INSTANCE_LIST: http://sbms-discovery:8080/eureka/
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
     - sbms-net
@@ -71,7 +71,7 @@ services:
 
   sbms-greeting:
     environment:
-      EUREKA_INSTANCE_LIST: http://sbms-discovery:8761/eureka/
+      EUREKA_INSTANCE_LIST: http://sbms-discovery:8080/eureka/
       SPRING_DATA_MONGODB_HOST: sbms-mongo
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
     networks:
