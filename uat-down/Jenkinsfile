@@ -15,7 +15,7 @@ pipeline {
         stage('Tear Down Dev') {
             environment {
                 APP_SWARM_MANAGER = "$DEV_HOST:2375"
-                APP_STACK_NAME = "sbms-test-app"
+                APP_STACK_NAME = "sbms-uat-app"
             }
             steps {
                 sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
