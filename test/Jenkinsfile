@@ -93,10 +93,10 @@ pipeline {
                     sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
-        }
-        post {
-            failure {
-                slackSend ":warning: Tests were completed, but images were not properly marked as test-passed."
+            post {
+                failure {
+                    slackSend ":warning: Tests were completed, but images were not properly marked as test-passed."
+                }
             }
         }
     }
