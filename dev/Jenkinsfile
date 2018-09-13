@@ -7,27 +7,32 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
 
-    environment {
-        PROD_HOST = "172.24.140.83"
+    triggers {
+        pollSCM('H/5 8-16 * * 1-5')
+        upstream(upstreamProjects: 'sbms-discovery,sbms-admin,sbms-web,sbms-greeting', threshold: hudson.model.Result.SUCCESS)
     }
-    
+
+    environment {
+        DEV_HOST = "172.24.140.88"
+    }
+
     stages {
-        stage('Deploy Application') {
+        stage('Deploy to Dev') {
             environment {
-                APP_SWARM_MANAGER = "$PROD_HOST:2375"
-                APP_STACK_NAME = "sbms-prod-app"
-                SOURCE_IMAGE_TAG = "rc"
-                IMAGE_TAG = "prod"
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-dev-app"
+                SOURCE_IMAGE_TAG = "latest"
+                IMAGE_TAG = "dev"
 
-                ADMIN_PORT = "9999"
-                WEB_PORT = "8080"
-                GREETING_PORT = "8100"
-                DISCOVERY_PORT = "8761"
+                ADMIN_PORT = "19999"
+                WEB_PORT = "18080"
+                GREETING_PORT = "18100"
+                DISCOVERY_PORT = "18761"
 
-                MONGODB_DATA_PATH = "/opt/sbms/mongodb"
-                MONGODB_PORT = "27017"
+                MONGODB_DATA_PATH = "/opt/sbms/dev/mongodb"
+                MONGODB_PORT = "27000"
 
-                NETWORK_NAME = "sbms-prod-net"
+                NETWORK_NAME = "sbms-dev-net"
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
@@ -49,14 +54,6 @@ pipeline {
                     sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
                 }
             }
-        }
-    }
-    post {
-        success {
-            slackSend ":trophy: Production deployment successfully completed!"
-        }
-        failure {
-            slackSend ":boom: Production deployment failed!"
         }
     }
 }

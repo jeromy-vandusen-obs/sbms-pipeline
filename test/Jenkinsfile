@@ -1,0 +1,103 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    triggers {
+        pollSCM('H/5 8-16 * * 1-5')
+        upstream(upstreamProjects: 'sbms-dev', threshold: hudson.model.Result.SUCCESS)
+    }
+
+    environment {
+        DEV_HOST = "172.24.140.88"
+    }
+
+    stages {
+        stage('Deploy to Test') {
+            environment {
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-test-app"
+                SOURCE_IMAGE_TAG = "dev"
+                IMAGE_TAG = "test"
+
+                ADMIN_PORT = "29999"
+                WEB_PORT = "28080"
+                GREETING_PORT = "28100"
+                DISCOVERY_PORT = "28761"
+
+                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
+                MONGODB_PORT = "27001"
+
+                NETWORK_NAME = "sbms-test-net"
+            }
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker pull jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-admin:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-web:$SOURCE_IMAGE_TAG"
+                    sh "docker pull jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG"
+
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
+
+                    sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $APP_STACK_NAME"
+
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
+                }
+            }
+        }
+        stage('Run Tests') {
+            environment {
+                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_STACK_NAME = "sbms-test-app"
+                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
+            }
+            steps {
+                // TODO: execute tests
+                echo "insert tests here"
+            }
+            post {
+                always {
+                    sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
+                    sh "rm -rf $MONGODB_DATA_PATH/*"
+                }
+                failure {
+                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :fire: Failed :fire:"
+                }
+            }
+        }
+        stage ('Tag Tested Images') {
+            environment {
+                SOURCE_IMAGE_TAG = "test"
+                IMAGE_TAG = "test-passed"
+            }
+            steps {
+                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
+                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
+
+                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
+                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
+                }
+            }
+        }
+        post {
+            failure {
+                slackSend ":warning: Tests were completed, but images were not properly marked as test-passed."
+            }
+        }
+    }
+}
