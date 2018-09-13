@@ -7,13 +7,12 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
 
-    environment {
-        SOURCE_IMAGE_TAG = 'uat'
-        IMAGE_TAG = 'rc'
-    }
-    
     stages {
         stage('Prepare Release Candidate') {
+            environment {
+                SOURCE_IMAGE_TAG = 'uat'
+                IMAGE_TAG = 'rc'
+            }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"

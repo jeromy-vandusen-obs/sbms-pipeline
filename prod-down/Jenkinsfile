@@ -12,11 +12,11 @@ pipeline {
     }
 
     stages {
-        environment {
-            APP_SWARM_MANAGER = "$PROD_HOST:2375"
-            APP_STACK_NAME = "sbms-prod-app"
-        }
         stage('Tear Down Dev') {
+            environment {
+                APP_SWARM_MANAGER = "$PROD_HOST:2375"
+                APP_STACK_NAME = "sbms-prod-app"
+            }
             steps {
                 sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
             }
