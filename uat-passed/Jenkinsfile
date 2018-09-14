@@ -1,3 +1,5 @@
+@Library('sbms-pipeline-shared@master') _
+
 pipeline {
     agent any
 
