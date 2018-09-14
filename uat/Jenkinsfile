@@ -10,7 +10,6 @@ pipeline {
     }
 
     triggers {
-        pollSCM('H/5 8-16 * * 1-5')
         upstream(upstreamProjects: 'sbms-pipeline-test', threshold: hudson.model.Result.SUCCESS)
     }
 
