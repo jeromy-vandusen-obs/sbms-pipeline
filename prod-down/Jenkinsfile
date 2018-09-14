@@ -18,16 +18,16 @@ pipeline {
                 APP_STACK_NAME = "sbms-prod-app"
             }
             steps {
-                sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
+                tearDown($APP_SWARM_MANAGER, $APP_STACK_NAME)
             }
         }
     }
     post {
         success {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :lightning: *The PROD environment has been taken down.*"
+            notify('PROD_INFO', '*The PROD environment has been taken down.*')
         }
         failure {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :rotating_light: *The PROD environment did not shut down properly and may be in an unstable state.*"
+            notify('PROD_WARN', '*The PROD environment did not shut down properly and may be in an unstable state.*')
         }
     }
 }

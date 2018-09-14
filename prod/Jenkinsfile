@@ -31,22 +31,10 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker pull jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG"
-                    sh "docker pull jvandusen/sbms-admin:$SOURCE_IMAGE_TAG"
-                    sh "docker pull jvandusen/sbms-web:$SOURCE_IMAGE_TAG"
-                    sh "docker pull jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG"
-
-                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
-
-                    sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $APP_STACK_NAME"
-
-                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
+                    pull($SOURCE_IMAGE_TAG)
+                    tag($SOURCE_IMAGE_TAG, $IMAGE_TAG)
+                    deploy($APP_SWARM_MANAGER, $APP_STACK_NAME)
+                    push($IMAGE_TAG)
                 }
             }
         }

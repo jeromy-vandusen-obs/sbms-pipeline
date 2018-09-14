@@ -18,16 +18,16 @@ pipeline {
                 APP_STACK_NAME = "sbms-uat-app"
             }
             steps {
-                sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
+                tearDown($APP_SWARM_MANAGER, $APP_STACK_NAME)
             }
         }
     }
     post {
         success {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :information_source: The *UAT* environment has been taken down."
+            notify('INFO', 'The *UAT* environment has been taken down.')
         }
         failure {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: The *UAT* environment did not shut down properly and may be in an unstable state."
+            notify('WARN', 'The *UAT* environment did not shut down properly and may be in an unstable state.')
         }
     }
 }

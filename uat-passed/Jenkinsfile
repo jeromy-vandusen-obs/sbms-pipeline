@@ -15,25 +15,18 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
-
-                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
+                    tag($SOURCE_IMAGE_TAG, $IMAGE_TAG)
+                    push($IMAGE_TAG)
                 }
             }
         }
     }
     post {
         success {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :information_source: The application in UAT has been accepted as a Release Candidate."
+            notify('INFO', 'The application in UAT has been accepted as a Release Candidate.')
         }
         failure {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: The application in UAT was not able to be accepted as a Release Candidate."
+            notify('WARN', 'The application in UAT was not able to be accepted as a Release Candidate.')
         }
     }
 }

@@ -36,27 +36,15 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker pull jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG"
-                    sh "docker pull jvandusen/sbms-admin:$SOURCE_IMAGE_TAG"
-                    sh "docker pull jvandusen/sbms-web:$SOURCE_IMAGE_TAG"
-                    sh "docker pull jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG"
-
-                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
-
-                    sh "docker -H $APP_SWARM_MANAGER stack deploy --compose-file docker-compose.yml --resolve-image always --prune $APP_STACK_NAME"
-
-                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
+                    pull($SOURCE_IMAGE_TAG)
+                    tag($SOURCE_IMAGE_TAG, $IMAGE_TAG)
+                    deploy($APP_SWARM_MANAGER, $APP_STACK_NAME)
+                    push($IMAGE_TAG)
                 }
             }
             post {
                 failure {
-                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: The *TEST* environment did not deploy properly and tests were not executed."
+                    notify('WARN', 'The *TEST* environment did not deploy properly and tests were not executed.')
                 }
             }
         }
@@ -72,11 +60,11 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker -H $APP_SWARM_MANAGER stack rm $APP_STACK_NAME"
+                    tearDown($APP_SWARM_MANAGER, $APP_STACK_NAME)
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
                 failure {
-                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :fire: There were test failures. :fire:"
+                    notify('FAIL', 'There were test failures.')
                 }
             }
         }
@@ -87,27 +75,20 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    sh "docker tag jvandusen/sbms-discovery:$SOURCE_IMAGE_TAG jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-admin:$SOURCE_IMAGE_TAG jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-web:$SOURCE_IMAGE_TAG jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker tag jvandusen/sbms-greeting:$SOURCE_IMAGE_TAG jvandusen/sbms-greeting:$IMAGE_TAG"
-
-                    sh "docker push jvandusen/sbms-discovery:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-admin:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-web:$IMAGE_TAG"
-                    sh "docker push jvandusen/sbms-greeting:$IMAGE_TAG"
+                    tag($SOURCE_IMAGE_TAG, $IMAGE_TAG)
+                    push($IMAGE_TAG)
                 }
             }
             post {
                 failure {
-                    slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :warning: Tests were completed, but images were not properly marked as test-passed."
+                    notify('WARN', 'Tests were completed, but images were not properly marked as test-passed.')
                 }
             }
         }
     }
     post {
         success {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :information_source: All tests passed."
+            notifu('INFO', 'All tests passed.')
         }
     }
 }
