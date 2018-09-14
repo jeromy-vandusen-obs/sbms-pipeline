@@ -90,7 +90,7 @@ pipeline {
     }
     post {
         success {
-            notifu('INFO', 'All tests passed.')
+            notify('INFO', 'All tests passed.')
         }
     }
 }
