@@ -10,7 +10,7 @@ pipeline {
     }
 
     triggers {
-        upstream(upstreamProjects: 'sbms-discovery,sbms-admin,sbms-web,sbms-greeting', threshold: hudson.model.Result.SUCCESS)
+        upstream(upstreamProjects: projectList(), threshold: hudson.model.Result.SUCCESS)
     }
 
     environment {
