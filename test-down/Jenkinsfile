@@ -20,7 +20,7 @@ pipeline {
                 APP_STACK_NAME = "sbms-test-app"
             }
             steps {
-                tearDown($APP_SWARM_MANAGER, $APP_STACK_NAME)
+                tearDown("$APP_SWARM_MANAGER", "$APP_STACK_NAME")
             }
         }
     }
