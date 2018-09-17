@@ -11,12 +11,15 @@ pipeline {
 
     environment {
         PROD_HOST = "172.24.140.83"
+        DOCKER_HOST = "tcp://$PROD_HOST:2376"
+        DOCKER_TLS_VERIFY = "1"
+        DOCKER_CERT_PATH = "/root/.tls"
     }
     
     stages {
         stage('Deploy Application') {
             environment {
-                APP_SWARM_MANAGER = "$PROD_HOST:2375"
+                APP_SWARM_MANAGER = "$PROD_HOST:2376"
                 APP_STACK_NAME = "sbms-prod-app"
                 SOURCE_IMAGE_TAG = "rc"
                 IMAGE_TAG = "prod"

@@ -11,12 +11,15 @@ pipeline {
 
     environment {
         DEV_HOST = "172.24.140.88"
+        DOCKER_HOST = "tcp://$DEV_HOST:2376"
+        DOCKER_TLS_VERIFY = "1"
+        DOCKER_CERT_PATH = "/root/.tls"
     }
     
     stages {
         stage('Tear Down Dev') {
             environment {
-                APP_SWARM_MANAGER = "$DEV_HOST:2375"
+                APP_SWARM_MANAGER = "$DEV_HOST:2376"
                 APP_STACK_NAME = "sbms-dev-app"
             }
             steps {
