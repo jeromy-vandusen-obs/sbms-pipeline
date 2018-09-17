@@ -23,8 +23,7 @@ pipeline {
     stages {
         stage('Deploy to Dev') {
             environment {
-                APP_SWARM_MANAGER = "$DEV_HOST:2376"
-                APP_STACK_NAME = "sbms-dev-app"
+                STACK_NAME = "sbms-dev-app"
                 SOURCE_IMAGE_TAG = "latest"
                 IMAGE_TAG = "dev"
 
@@ -42,7 +41,7 @@ pipeline {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     pull("$SOURCE_IMAGE_TAG")
                     tag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    deploy("$APP_SWARM_MANAGER", "$APP_STACK_NAME")
+                    deploy("$STACK_NAME")
                     push("$IMAGE_TAG")
                 }
             }

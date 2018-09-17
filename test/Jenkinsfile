@@ -23,8 +23,7 @@ pipeline {
     stages {
         stage('Deploy to Test') {
             environment {
-                APP_SWARM_MANAGER = "$TEST_HOST:2376"
-                APP_STACK_NAME = "sbms-test-app"
+                STACK_NAME = "sbms-test-app"
                 SOURCE_IMAGE_TAG = "dev"
                 IMAGE_TAG = "test"
 
@@ -42,7 +41,7 @@ pipeline {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     pull("$SOURCE_IMAGE_TAG")
                     tag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    deploy("$APP_SWARM_MANAGER", "$APP_STACK_NAME")
+                    deploy("$STACK_NAME")
                     push("$IMAGE_TAG")
                 }
             }
@@ -54,8 +53,7 @@ pipeline {
         }
         stage('Run Tests') {
             environment {
-                APP_SWARM_MANAGER = "$TEST_HOST:2376"
-                APP_STACK_NAME = "sbms-test-app"
+                STACK_NAME = "sbms-test-app"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
             }
             steps {
@@ -64,7 +62,7 @@ pipeline {
             }
             post {
                 always {
-                    tearDown("$APP_SWARM_MANAGER", "$APP_STACK_NAME")
+                    tearDown("$STACK_NAME")
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
                 failure {

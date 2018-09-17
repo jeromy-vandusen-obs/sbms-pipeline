@@ -19,11 +19,10 @@ pipeline {
     stages {
         stage('Tear Down Dev') {
             environment {
-                APP_SWARM_MANAGER = "$PROD_HOST:2376"
                 APP_STACK_NAME = "sbms-prod-app"
             }
             steps {
-                tearDown("$APP_SWARM_MANAGER", "$APP_STACK_NAME")
+                tearDown("$STACK_NAME")
             }
         }
     }
