@@ -57,8 +57,9 @@ pipeline {
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
             }
             steps {
-                // TODO: execute tests
-                echo "insert tests here"
+                build {
+                    job 'sbms-test'
+                }
             }
             post {
                 always {
