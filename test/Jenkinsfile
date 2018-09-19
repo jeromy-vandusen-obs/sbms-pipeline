@@ -15,9 +15,12 @@ pipeline {
 
     environment {
         TEST_HOST = "172.24.140.88"
+        TEST_PORT = "28080"
         DOCKER_HOST = "tcp://$TEST_HOST:2376"
         DOCKER_TLS_VERIFY = "1"
         DOCKER_CERT_PATH = "/root/.tls"
+
+        READY_FOR_TESTING = "no"
     }
 
     stages {
@@ -28,7 +31,7 @@ pipeline {
                 IMAGE_TAG = "test"
 
                 ADMIN_PORT = "29999"
-                WEB_PORT = "28080"
+                WEB_PORT = "$TEST_PORT"
                 GREETING_PORT = "28100"
                 DISCOVERY_PORT = "28761"
 
@@ -52,11 +55,22 @@ pipeline {
             }
         }
         stage('Wait For Environment') {
+            when {
+                expression {
+                    // ping the application every 10 seconds for up to 3 minutes (18 pings)
+                    return waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 18)
+                }
+            }
             steps {
-                sleep(time: 3, unit: 'MINUTES')
+                script {
+                    READY_FOR_TESTING = "yes"
+                }
             }
         }
         stage('Run Tests') {
+            when {
+                environment name: "READY_FOR_TESTING", value: "yes"
+            }
             environment {
                 STACK_NAME = "sbms-test-app"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
@@ -69,12 +83,18 @@ pipeline {
                     tearDown("$STACK_NAME")
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
+                success {
+                    notify('INFO', 'All tests passed.')
+                }
                 failure {
                     notify('FAIL', 'There were test failures.')
                 }
             }
         }
         stage ('Tag Tested Images') {
+            when {
+                environment name: "READY_FOR_TESTING", value: "yes"
+            }
             environment {
                 SOURCE_IMAGE_TAG = "test"
                 IMAGE_TAG = "test-passed"
@@ -91,10 +111,13 @@ pipeline {
                 }
             }
         }
-    }
-    post {
-        success {
-            notify('INFO', 'All tests passed.')
+        stage ('Summarize') {
+            when {
+                environment name: "READY_FOR_TESTING", value: "no"
+            }
+            steps {
+                notify('WARN', 'Tests were skipped because the test environment was not ready in the allotted time.')
+            }
         }
     }
 }
