@@ -19,8 +19,6 @@ pipeline {
         DOCKER_HOST = "tcp://$TEST_HOST:2376"
         DOCKER_TLS_VERIFY = "1"
         DOCKER_CERT_PATH = "/root/.tls"
-
-        READY_FOR_TESTING = "no"
     }
 
     stages {
@@ -57,20 +55,18 @@ pipeline {
         stage('Wait For Environment') {
             when {
                 expression {
-                    // ping the application every 10 seconds for up to 5 minutes (30 pings)
-                    return waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 30)
+                    // We wait for the application to become active, but execute this stage if it doesn't, so we can
+                    // mark the build as failed.
+                    return ! waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 30)
                 }
             }
             steps {
                 script {
-                    READY_FOR_TESTING = "yes"
+                    currentBuild.result = 'FAILED'
                 }
             }
         }
         stage('Run Tests') {
-            when {
-                environment name: "READY_FOR_TESTING", value: "yes"
-            }
             environment {
                 STACK_NAME = "sbms-test-app"
                 MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
@@ -79,10 +75,6 @@ pipeline {
                 build('sbms-test')
             }
             post {
-                always {
-                    tearDown("$STACK_NAME")
-                    sh "rm -rf $MONGODB_DATA_PATH/*"
-                }
                 success {
                     notify('INFO', 'All tests passed.')
                 }
@@ -92,9 +84,6 @@ pipeline {
             }
         }
         stage ('Tag Tested Images') {
-            when {
-                environment name: "READY_FOR_TESTING", value: "yes"
-            }
             environment {
                 SOURCE_IMAGE_TAG = "test"
                 IMAGE_TAG = "test-passed"
@@ -111,13 +100,11 @@ pipeline {
                 }
             }
         }
-        stage ('Summarize') {
-            when {
-                environment name: "READY_FOR_TESTING", value: "no"
-            }
-            steps {
-                notify('WARN', 'Tests were skipped because the test environment was not ready in the allotted time.')
-            }
+    }
+    post {
+        always {
+            tearDown("$STACK_NAME")
+            sh "rm -rf $MONGODB_DATA_PATH/*"
         }
     }
 }
