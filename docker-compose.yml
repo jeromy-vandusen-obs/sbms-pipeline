@@ -17,6 +17,7 @@ services:
 
   sbms-discovery-1:
     environment:
+      SPRING_PROFILES_ACTIVE: swarm
       EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
@@ -31,6 +32,7 @@ services:
 
   sbms-discovery-2:
     environment:
+      SPRING_PROFILES_ACTIVE: swarm
       EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
     image: jvandusen/sbms-discovery:${IMAGE_TAG}
     networks:
@@ -43,6 +45,7 @@ services:
 
   sbms-admin:
     environment:
+      SPRING_PROFILES_ACTIVE: swarm
       EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
     image: jvandusen/sbms-admin:${IMAGE_TAG}
     networks:
@@ -63,6 +66,7 @@ services:
 
   sbms-web:
     environment:
+      SPRING_PROFILES_ACTIVE: swarm
       EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
     image: jvandusen/sbms-web:${IMAGE_TAG}
     networks:
@@ -83,6 +87,7 @@ services:
 
   sbms-greeting:
     environment:
+      SPRING_PROFILES_ACTIVE: swarm
       EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
       SPRING_DATA_MONGODB_HOST: sbms-mongo
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
