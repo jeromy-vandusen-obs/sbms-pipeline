@@ -58,7 +58,7 @@ pipeline {
             when {
                 expression {
                     // ping the application every 10 seconds for up to 3 minutes (18 pings)
-                    return waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 18)
+                    return waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 30)
                 }
             }
             steps {
