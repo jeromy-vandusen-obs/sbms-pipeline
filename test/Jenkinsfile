@@ -53,16 +53,11 @@ pipeline {
             }
         }
         stage('Wait For Environment') {
-            when {
-                expression {
-                    // We wait for the application to become active, but execute this stage if it doesn't, so we can
-                    // mark the build as failed.
-                    return ! waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 30)
-                }
-            }
             steps {
                 script {
-                    currentBuild.result = 'FAILED'
+                    if (! waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 30)) {
+                        currentBuild.result = 'FAILED'
+                    }
                 }
             }
         }
