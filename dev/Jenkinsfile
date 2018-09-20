@@ -14,7 +14,7 @@ pipeline {
     }
 
     environment {
-        DEV_HOST = "172.24.140.88"
+        DEV_HOST = "dev"
         DOCKER_HOST = "tcp://$DEV_HOST:2376"
         DOCKER_TLS_VERIFY = "1"
         DOCKER_CERT_PATH = "/root/.tls"

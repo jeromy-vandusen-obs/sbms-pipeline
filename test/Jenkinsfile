@@ -14,7 +14,7 @@ pipeline {
     }
 
     environment {
-        TEST_HOST = "172.24.140.88"
+        TEST_HOST = "test"
         TEST_PORT = "28080"
         DOCKER_HOST = "tcp://$TEST_HOST:2376"
         DOCKER_TLS_VERIFY = "1"

@@ -10,7 +10,7 @@ pipeline {
     }
 
     environment {
-        UAT_HOST = "172.24.140.88"
+        UAT_HOST = "uat"
         DOCKER_HOST = "tcp://$UAT_HOST:2376"
         DOCKER_TLS_VERIFY = "1"
         DOCKER_CERT_PATH = "/root/.tls"
