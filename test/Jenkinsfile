@@ -70,11 +70,9 @@ pipeline {
                 build('sbms-test')
             }
             post {
-                success {
-                    notify('INFO', 'All tests passed.')
-                }
-                failure {
-                    notify('FAIL', 'There were test failures.')
+                always {
+                    tearDown("$STACK_NAME")
+                    sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
             }
         }
@@ -90,16 +88,13 @@ pipeline {
                 }
             }
             post {
+                success {
+                    notify('INFO', 'Tested images have been tagged.')
+                }
                 failure {
                     notify('WARN', 'Tests were completed, but images were not properly marked as test-passed.')
                 }
             }
-        }
-    }
-    post {
-        always {
-            tearDown("$STACK_NAME")
-            sh "rm -rf $MONGODB_DATA_PATH/*"
         }
     }
 }
