@@ -8,3 +8,9 @@
 4. In "SCM", select "Git".
 5. In "Repository URL", enter "https://github.com/jeromy-vandusen-obs/sbms-pipeline.git".
 6. Deselect "Lightweight checkout" and click "Save".
+
+## To Do
+
+* Figure out why builds are occasionally randomly triggered when no changes have been committed.
+* Consider moving sbms-pipeline-shared content into here.
+* Tag the Git repositories at various stages in the pipeline.
