@@ -40,7 +40,7 @@ pipeline {
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
                     pull("$SOURCE_IMAGE_TAG")
-                    tag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
+                    dockerTag('latest', 'dev')
                     deploy("$STACK_NAME")
                     push("$IMAGE_TAG")
                 }
