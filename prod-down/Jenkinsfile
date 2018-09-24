@@ -22,7 +22,7 @@ pipeline {
                 APP_STACK_NAME = "sbms-prod-app"
             }
             steps {
-                tearDown("$STACK_NAME")
+                dockerTearDown("$STACK_NAME")
             }
         }
     }

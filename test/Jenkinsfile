@@ -40,10 +40,10 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    pull("$SOURCE_IMAGE_TAG")
-                    tag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    deploy("$STACK_NAME")
-                    push("$IMAGE_TAG")
+                    dockerPull("$SOURCE_IMAGE_TAG")
+                    dockerTag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
+                    dockerDeploy("$STACK_NAME")
+                    dockerPush("$IMAGE_TAG")
                 }
             }
             post {
@@ -71,7 +71,7 @@ pipeline {
             }
             post {
                 always {
-                    tearDown("$STACK_NAME")
+                    dockerTearDown("$STACK_NAME")
                     sh "rm -rf $MONGODB_DATA_PATH/*"
                 }
             }
@@ -83,8 +83,8 @@ pipeline {
             }
             steps {
                 withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    tag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    push("$IMAGE_TAG")
+                    dockerTag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
+                    dockerPush("$IMAGE_TAG")
                 }
             }
             post {
