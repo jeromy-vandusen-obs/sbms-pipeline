@@ -98,14 +98,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
     healthcheck:
-      start_period: 5m
+      start_period: 30s
 
 networks:
   sbms-net:
