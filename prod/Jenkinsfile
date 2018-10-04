@@ -45,10 +45,10 @@ pipeline {
     }
     post {
         success {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :trophy: *Production deployment successfully completed!*"
+            notify('PROD_SUCCESS', '*Production deployment successfully completed!*')
         }
         failure {
-            slackSend "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :boom: *Production deployment failed!*"
+            notify('PROD_FAIL', '*Production deployment failed!*')
         }
     }
 }

@@ -10,26 +10,25 @@ pipeline {
     }
 
     triggers {
-        upstream(upstreamProjects: 'sbms-pipeline-dev', threshold: hudson.model.Result.SUCCESS)
+        upstream(upstreamProjects: projectList(), threshold: hudson.model.Result.SUCCESS)
     }
 
     environment {
         TEST_HOST = "test"
-        TEST_PORT = "28080"
         DOCKER_HOST = "tcp://$TEST_HOST:2376"
         DOCKER_TLS_VERIFY = "1"
         DOCKER_CERT_PATH = "/root/.tls"
     }
 
     stages {
-        stage('Deploy to Test') {
+        stage('Deploy to Dev') {
             environment {
                 STACK_NAME = "sbms-test-app"
                 SOURCE_IMAGE_TAG = "dev"
                 IMAGE_TAG = "test"
 
                 ADMIN_PORT = "29999"
-                WEB_PORT = "$TEST_PORT"
+                WEB_PORT = "28080"
                 GREETING_PORT = "28100"
                 DISCOVERY_PORT = "28761"
 
@@ -46,55 +45,14 @@ pipeline {
                     dockerPush("$IMAGE_TAG")
                 }
             }
-            post {
-                failure {
-                    notify('WARN', 'The *TEST* environment did not deploy properly and tests were not executed.')
-                }
-            }
         }
-        stage('Wait For Environment') {
-            steps {
-                script {
-                    if (! waitUntilActive("$TEST_HOST", "$TEST_PORT", 10, 30)) {
-                        currentBuild.result = 'FAILED'
-                    }
-                }
-            }
+    }
+    post {
+        success {
+            notify('INFO', 'The *TEST* environment has been deployed.')
         }
-        stage('Run Tests') {
-            environment {
-                STACK_NAME = "sbms-test-app"
-                MONGODB_DATA_PATH = "/opt/sbms/test/mongodb"
-            }
-            steps {
-                build('sbms-test')
-            }
-            post {
-                always {
-                    dockerTearDown("$STACK_NAME")
-                    sh "rm -rf $MONGODB_DATA_PATH/*"
-                }
-            }
-        }
-        stage ('Tag Tested Images') {
-            environment {
-                SOURCE_IMAGE_TAG = "test"
-                IMAGE_TAG = "test-passed"
-            }
-            steps {
-                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    dockerTag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    dockerPush("$IMAGE_TAG")
-                }
-            }
-            post {
-                success {
-                    notify('INFO', 'Tested images have been tagged.')
-                }
-                failure {
-                    notify('WARN', 'Tests were completed, but images were not properly marked as test-passed.')
-                }
-            }
+        failure {
+            notify('WARN', 'The *TEST* environment did not deploy properly and may be in an unstable state.')
         }
     }
 }
