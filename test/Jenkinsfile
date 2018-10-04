@@ -21,7 +21,7 @@ pipeline {
     }
 
     stages {
-        stage('Deploy to Dev') {
+        stage('Deploy to Test') {
             environment {
                 STACK_NAME = "sbms-test-app"
                 SOURCE_IMAGE_TAG = "dev"
