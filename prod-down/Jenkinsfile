@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage('Tear Down Dev') {
             environment {
-                APP_STACK_NAME = "sbms-prod-app"
+                STACK_NAME = "sbms-prod-app"
             }
             steps {
                 dockerTearDown("$STACK_NAME")
