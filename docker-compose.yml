@@ -88,7 +88,7 @@ services:
   sbms-greeting:
     environment:
       SPRING_PROFILES_ACTIVE: swarm
-      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
+      EUREKA_INSTANCE_LIST: http://build:8761/eureka/
       SPRING_DATA_MONGODB_HOST: sbms-mongo
     image: jvandusen/sbms-greeting:${IMAGE_TAG}
     networks:
