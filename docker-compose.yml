@@ -14,76 +14,76 @@ services:
       replicas: 1
     healthcheck:
       start_period: 1m
-
-  sbms-discovery-1:
-    environment:
-      SPRING_PROFILES_ACTIVE: swarm
-      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
-    image: jvandusen/sbms-discovery:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    ports:
-    - "${DISCOVERY_PORT}:8080"
-    deploy:
-      mode: replicated
-      replicas: 1
-    healthcheck:
-      start_period: 5m
-
-  sbms-discovery-2:
-    environment:
-      SPRING_PROFILES_ACTIVE: swarm
-      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
-    image: jvandusen/sbms-discovery:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    deploy:
-      mode: replicated
-      replicas: 1
-    healthcheck:
-      start_period: 5m
-
-  sbms-admin:
-    environment:
-      SPRING_PROFILES_ACTIVE: swarm
-      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
-    image: jvandusen/sbms-admin:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    ports:
-    - "${ADMIN_PORT}:8080"
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
-    healthcheck:
-      start_period: 5m
-
-  sbms-web:
-    environment:
-      SPRING_PROFILES_ACTIVE: swarm
-      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
-    image: jvandusen/sbms-web:${IMAGE_TAG}
-    networks:
-    - sbms-net
-    ports:
-    - "${WEB_PORT}:8080"
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 5m
-        failure_action: continue
-        monitor: 5m
-        max_failure_ratio: 0.3
-    healthcheck:
-      start_period: 5m
+#
+#  sbms-discovery-1:
+#    environment:
+#      SPRING_PROFILES_ACTIVE: swarm
+#      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
+#    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+#    networks:
+#    - sbms-net
+#    ports:
+#    - "${DISCOVERY_PORT}:8080"
+#    deploy:
+#      mode: replicated
+#      replicas: 1
+#    healthcheck:
+#      start_period: 5m
+#
+#  sbms-discovery-2:
+#    environment:
+#      SPRING_PROFILES_ACTIVE: swarm
+#      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
+#    image: jvandusen/sbms-discovery:${IMAGE_TAG}
+#    networks:
+#    - sbms-net
+#    deploy:
+#      mode: replicated
+#      replicas: 1
+#    healthcheck:
+#      start_period: 5m
+#
+#  sbms-admin:
+#    environment:
+#      SPRING_PROFILES_ACTIVE: swarm
+#      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
+#    image: jvandusen/sbms-admin:${IMAGE_TAG}
+#    networks:
+#    - sbms-net
+#    ports:
+#    - "${ADMIN_PORT}:8080"
+#    deploy:
+#      mode: replicated
+#      replicas: 1
+#      update_config:
+#        parallelism: 1
+#        delay: 5m
+#        failure_action: continue
+#        monitor: 5m
+#        max_failure_ratio: 0.3
+#    healthcheck:
+#      start_period: 5m
+#
+#  sbms-web:
+#    environment:
+#      SPRING_PROFILES_ACTIVE: swarm
+#      EUREKA_INSTANCE_LIST: http://sbms-discovery-1:8080/eureka/,http://sbms-discovery-2:8080/eureka/
+#    image: jvandusen/sbms-web:${IMAGE_TAG}
+#    networks:
+#    - sbms-net
+#    ports:
+#    - "${WEB_PORT}:8080"
+#    deploy:
+#      mode: replicated
+#      replicas: 1
+#      update_config:
+#        parallelism: 1
+#        delay: 5m
+#        failure_action: continue
+#        monitor: 5m
+#        max_failure_ratio: 0.3
+#    healthcheck:
+#      start_period: 5m
 
   sbms-greeting:
     environment:
