@@ -41,6 +41,4 @@ $ ./mvnw clean verify
 
 ## To Do
 
-* Figure out why builds are occasionally randomly triggered when no changes have been committed.
-* Consider moving sbms-pipeline-shared content into here.
 * Tag the Git repositories at various stages in the pipeline.
