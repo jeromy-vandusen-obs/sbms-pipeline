@@ -10,36 +10,32 @@ pipeline {
     }
 
     environment {
-        PROD_HOST = "prod"
-        DOCKER_HOST = "tcp://$PROD_HOST:2376"
-        DOCKER_TLS_VERIFY = "1"
-        DOCKER_CERT_PATH = "/root/.tls"
+        HOST = "prod"
+        PORT = "2376"
+
+        SOURCE_IMAGE_TAG = "rc"
+        IMAGE_TAG = "prod"
+
+        ADMIN_PORT = "9999"
+        WEB_PORT = "8080"
+        GREETING_PORT = "8100"
+        DISCOVERY_PORT = "8761"
+
+        MONGODB_DATA_PATH = "/opt/sbms/mongodb"
+        MONGODB_PORT = "27017"
+
+        NETWORK_NAME = "sbms-prod-net"
     }
     
     stages {
-        stage('Deploy Application') {
-            environment {
-                STACK_NAME = "sbms-prod-app"
-                SOURCE_IMAGE_TAG = "rc"
-                IMAGE_TAG = "prod"
-
-                ADMIN_PORT = "9999"
-                WEB_PORT = "8080"
-                GREETING_PORT = "8100"
-                DISCOVERY_PORT = "8761"
-
-                MONGODB_DATA_PATH = "/opt/sbms/mongodb"
-                MONGODB_PORT = "27017"
-
-                NETWORK_NAME = "sbms-prod-net"
-            }
+        stage('Prepare Data Directory') {
             steps {
-                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    dockerPull("$SOURCE_IMAGE_TAG")
-                    dockerTag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    dockerDeploy("$STACK_NAME")
-                    dockerPush("$IMAGE_TAG")
-                }
+                sh "mkdir -p $MONGODB_DATA_PATH"
+            }
+        }
+        stage('Deploy Application') {
+            steps {
+                dockerDeploy("tcp://$HOST:$PORT", "sbms-prod-app")
             }
         }
     }

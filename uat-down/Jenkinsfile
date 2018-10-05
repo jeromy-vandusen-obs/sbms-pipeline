@@ -10,19 +10,14 @@ pipeline {
     }
 
     environment {
-        UAT_HOST = "uat"
-        DOCKER_HOST = "tcp://$UAT_HOST:2376"
-        DOCKER_TLS_VERIFY = "1"
-        DOCKER_CERT_PATH = "/root/.tls"
+        HOST = "uat"
+        PORT = "2376"
     }
 
     stages {
         stage('Tear Down Dev') {
-            environment {
-                STACK_NAME = "sbms-uat-app"
-            }
             steps {
-                dockerTearDown("$STACK_NAME")
+                dockerTearDown("tcp://$HOST:$PORT", "sbms-uat-app")
             }
         }
     }

@@ -10,19 +10,14 @@ pipeline {
     }
 
     environment {
-        DEV_HOST = "dev"
-        DOCKER_HOST = "tcp://$DEV_HOST:2376"
-        DOCKER_TLS_VERIFY = "1"
-        DOCKER_CERT_PATH = "/root/.tls"
+        HOST = "dev"
+        PORT = "2376"
     }
     
     stages {
         stage('Tear Down Dev') {
-            environment {
-                STACK_NAME = "sbms-dev-app"
-            }
             steps {
-                dockerTearDown("$STACK_NAME")
+                dockerTearDown("tcp://$HOST:$PORT", "sbms-dev")
             }
         }
     }

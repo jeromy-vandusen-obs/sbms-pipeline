@@ -10,36 +10,32 @@ pipeline {
     }
 
     environment {
-        UAT_HOST = "uat"
-        DOCKER_HOST = "tcp://$UAT_HOST:2376"
-        DOCKER_TLS_VERIFY = "1"
-        DOCKER_CERT_PATH = "/root/.tls"
+        HOST = "uat"
+        PORT = "2376"
+
+        SOURCE_IMAGE_TAG = "test-passed"
+        IMAGE_TAG = "uat"
+
+        ADMIN_PORT = "39999"
+        WEB_PORT = "38080"
+        GREETING_PORT = "38100"
+        DISCOVERY_PORT = "38761"
+
+        MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
+        MONGODB_PORT = "27002"
+
+        NETWORK_NAME = "sbms-uat-net"
     }
 
     stages {
-        stage('Deploy to UAT') {
-            environment {
-                STACK_NAME = "sbms-uat-app"
-                SOURCE_IMAGE_TAG = "test-passed"
-                IMAGE_TAG = "uat"
-
-                ADMIN_PORT = "39999"
-                WEB_PORT = "38080"
-                GREETING_PORT = "38100"
-                DISCOVERY_PORT = "38761"
-
-                MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
-                MONGODB_PORT = "27002"
-
-                NETWORK_NAME = "sbms-uat-net"
-            }
+        stage('Prepare Data Directory') {
             steps {
-                withDockerRegistry([url: '', credentialsId: 'DOCKER_HUB_CREDENTIALS']) {
-                    dockerPull("$SOURCE_IMAGE_TAG")
-                    dockerTag("$SOURCE_IMAGE_TAG", "$IMAGE_TAG")
-                    dockerDeploy("$STACK_NAME")
-                    dockerPush("$IMAGE_TAG")
-                }
+                sh "mkdir -p $MONGODB_DATA_PATH"
+            }
+        }
+        stage('Deploy to UAT') {
+            steps {
+                dockerDeploy("tcp://$HOST:$PORT", "sbms-uat-app")
             }
         }
     }
