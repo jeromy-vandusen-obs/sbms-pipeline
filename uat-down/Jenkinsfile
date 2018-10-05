@@ -17,7 +17,7 @@ pipeline {
     stages {
         stage('Tear Down Dev') {
             steps {
-                dockerTearDown("tcp://$HOST:$PORT", "sbms-uat-app")
+                dockerTearDown("tcp://$HOST:$PORT", "sbms-uat")
             }
         }
     }

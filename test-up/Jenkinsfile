@@ -35,7 +35,7 @@ pipeline {
         }
         stage('Deploy to Test') {
             steps {
-                dockerDeploy("tcp://$HOST:$PORT", "sbms-test-app")
+                dockerDeploy("tcp://$HOST:$PORT", "sbms-test")
             }
         }
     }
