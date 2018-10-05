@@ -9,10 +9,6 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
 
-    triggers {
-        upstream(upstreamProjects: projectList(), threshold: hudson.model.Result.SUCCESS)
-    }
-
     environment {
         DEV_HOST = "dev"
         DOCKER_HOST = "tcp://$DEV_HOST:2376"

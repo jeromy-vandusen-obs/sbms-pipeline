@@ -9,10 +9,6 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
 
-    triggers {
-        upstream(upstreamProjects: 'sbms-pipeline-test', threshold: hudson.model.Result.SUCCESS)
-    }
-
     environment {
         UAT_HOST = "uat"
         DOCKER_HOST = "tcp://$UAT_HOST:2376"
