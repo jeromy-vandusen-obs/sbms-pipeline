@@ -16,13 +16,13 @@ pipeline {
         SOURCE_IMAGE_TAG = "test-passed"
         IMAGE_TAG = "uat"
 
-        ADMIN_PORT = "39999"
-        WEB_PORT = "38080"
-        GREETING_PORT = "38100"
-        DISCOVERY_PORT = "38761"
+        ADMIN_PORT = "9999"
+        WEB_PORT = "80"
+        GREETING_PORT = "8100"
+        DISCOVERY_PORT = "8761"
 
         MONGODB_DATA_PATH = "/opt/sbms/uat/mongodb"
-        MONGODB_PORT = "27002"
+        MONGODB_PORT = "27017"
 
         NETWORK_NAME = "sbms-uat-net"
     }
